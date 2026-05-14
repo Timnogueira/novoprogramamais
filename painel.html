@@ -100,6 +100,13 @@
       </div>
       <div id="lista-ativar" class="space-y-3"></div>
       <p id="ativar-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Ninguém pronta para ativar agora.</p>
+
+      <div class="mt-10 mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Vouchers ativos</h2>
+        <p class="text-sm text-[#6B6B6B]">Em ordem de vencimento — os mais próximos aparecem primeiro.</p>
+      </div>
+      <div id="lista-vouchers" class="space-y-3"></div>
+      <p id="vouchers-pendentes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Nenhum voucher ativo no momento.</p>
     </section>
 
     <!-- Tab: clientes -->
@@ -169,8 +176,13 @@ function mostrarLogin() {
 async function mostrarApp() {
   document.getElementById("state-login").classList.add("hidden");
   document.getElementById("state-app").classList.remove("hidden");
+  // Roda a rotina de expiração antes de listar — atualiza status de vouchers vencidos
+  try {
+    await window.sb.rpc("expirar_vouchers");
+  } catch (e) { console.warn("expirar_vouchers falhou:", e); }
   carregarPendentes();
   carregarAtivar();
+  carregarVouchers();
 }
 
 // Login
@@ -452,6 +464,70 @@ async function ativarPlus(clienteId, nome) {
 }
 
 // =========================================================================
+// Vouchers ativos (home + ação de marcar como usado)
+// =========================================================================
+async function carregarVouchers() {
+  const { data, error } = await window.sb
+    .from("vouchers")
+    .select("id, tipo, validade, criado_em, cliente_id, clientes(id, nome, telefone, qr_token)")
+    .eq("status", "ativo")
+    .order("validade", { ascending: true });
+
+  const lista = document.getElementById("lista-vouchers");
+  const vazio = document.getElementById("vouchers-pendentes-vazio");
+  lista.innerHTML = "";
+
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  data.forEach(v => {
+    const validadeDate = new Date(v.validade + "T00:00:00");
+    const diasRest = Math.ceil((validadeDate - hoje) / (24 * 3600 * 1000));
+    const corClasse = diasRest <= 7 ? "text-red-600 font-medium"
+                     : diasRest <= 14 ? "text-orange-600"
+                     : "text-[#6B6B6B]";
+    const tipoNome = window.fmtTipoVoucher(v.tipo);
+    const cliente = v.clientes || {};
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(cliente.nome || "—")}</h3>
+          <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(cliente.telefone || "")}</p>
+          <p class="text-sm text-[#1F4E5C] mt-2">Voucher: <strong>${tipoNome}</strong></p>
+          <p class="text-xs ${corClasse} mt-1">Vence em ${window.fmtData(v.validade)} · ${diasRest} dia(s) restante(s)</p>
+        </div>
+        <button class="btn-gold text-xs whitespace-nowrap" data-usar="${v.id}" data-nome="${window.escapeHtml(cliente.nome || '')}" data-tipo="${tipoNome}">Marcar como usado</button>
+      </div>
+    `;
+    lista.appendChild(card);
+  });
+
+  lista.querySelectorAll("[data-usar]").forEach(btn => {
+    btn.addEventListener("click", () => marcarVoucherUsado(btn.dataset.usar, btn.dataset.nome, btn.dataset.tipo));
+  });
+}
+
+async function marcarVoucherUsado(voucherId, clienteNome, tipoNome) {
+  if (!confirm(`Marcar voucher de ${tipoNome} de ${clienteNome} como USADO?\n\nIsso não pode ser desfeito facilmente.`)) return;
+  const { error } = await window.sb.rpc("usar_voucher", { p_voucher_id: voucherId });
+  if (error) {
+    alert("Erro: " + error.message);
+    return;
+  }
+  // Re-renderiza listas afetadas
+  carregarVouchers();
+  // Se a aba clientes estiver aberta com a cliente, recarrega busca também
+  const buscaAtual = document.getElementById("busca-cliente").value.trim();
+  if (!document.getElementById("tab-clientes").classList.contains("hidden")) {
+    buscarClientes(buscaAtual);
+  }
+}
+
+// =========================================================================
 // Tab clientes — busca
 // =========================================================================
 const buscaInput = document.getElementById("busca-cliente");
@@ -465,7 +541,8 @@ async function buscarClientes(termo) {
   const lista = document.getElementById("lista-clientes");
   const vazio = document.getElementById("clientes-vazio");
 
-  let query = window.sb.from("clientes").select("id, nome, telefone, status, visitas_count, qr_token, virou_plus_em");
+  let query = window.sb.from("clientes")
+    .select("id, nome, telefone, status, visitas_count, qr_token, virou_plus_em, vouchers(id, tipo, validade, status)");
   if (termo) {
     query = query.or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`);
   }
@@ -481,11 +558,39 @@ async function buscarClientes(termo) {
   }
   vazio.classList.add("hidden");
 
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+
   data.forEach(c => {
     const isPlus = c.status === "plus";
     const carteirinhaUrl = isPlus && c.qr_token
       ? `${window.location.origin}/carteirinha/${c.qr_token}`
       : null;
+    const ativos = (c.vouchers || []).filter(v => v.status === "ativo")
+      .sort((a, b) => new Date(a.validade) - new Date(b.validade));
+
+    let vouchersHtml = "";
+    if (ativos.length > 0) {
+      vouchersHtml = `
+        <div class="mt-3 pt-3 border-t border-[#F0EFEC] space-y-2">
+          <p class="text-xs uppercase tracking-widest text-[#B08D57] font-medium">Vouchers ativos</p>
+          ${ativos.map(v => {
+            const validadeDate = new Date(v.validade + "T00:00:00");
+            const dias = Math.ceil((validadeDate - hoje) / (24 * 3600 * 1000));
+            const corClasse = dias <= 7 ? "text-red-600" : dias <= 14 ? "text-orange-600" : "text-[#6B6B6B]";
+            return `
+              <div class="flex justify-between items-center gap-2">
+                <div class="text-sm">
+                  <span class="text-[#1F4E5C] font-medium">${window.fmtTipoVoucher(v.tipo)}</span>
+                  <span class="${corClasse} text-xs ml-1">· vence ${window.fmtData(v.validade)} (${dias}d)</span>
+                </div>
+                <button class="btn-gold text-xs px-3 py-1.5" data-usar="${v.id}" data-nome="${window.escapeHtml(c.nome)}" data-tipo="${window.fmtTipoVoucher(v.tipo)}">Utilizar</button>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
     const card = document.createElement("article");
     card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
     card.innerHTML = `
@@ -505,6 +610,7 @@ async function buscarClientes(termo) {
           </div>
         ` : ""}
       </div>
+      ${vouchersHtml}
     `;
     lista.appendChild(card);
   });
@@ -520,6 +626,11 @@ async function buscarClientes(termo) {
       const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
       window.open(waLink, "_blank");
     });
+  });
+
+  // Bind utilizar voucher (vouchers inline nos cards de clientes)
+  lista.querySelectorAll("[data-usar]").forEach(btn => {
+    btn.addEventListener("click", () => marcarVoucherUsado(btn.dataset.usar, btn.dataset.nome, btn.dataset.tipo));
   });
 }
 
