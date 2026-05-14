@@ -125,29 +125,48 @@
   </main>
 
 <script>
+function mostrarErro(detalhe) {
+  document.getElementById("state-loading").classList.add("hidden");
+  document.getElementById("state-error").classList.remove("hidden");
+  if (detalhe) {
+    const p = document.querySelector("#state-error p");
+    if (p) p.textContent = "Detalhe: " + detalhe;
+  }
+}
+
 (async function() {
-  // Lê o token da URL — aceita ?t=, ?token= ou caminho /carteirinha/:token
-  const params = new URLSearchParams(window.location.search);
-  let token = params.get("t") || params.get("token");
-  if (!token) {
-    const pathMatch = window.location.pathname.match(/\/carteirinha\/([^/?#]+)/);
-    if (pathMatch) token = pathMatch[1];
-  }
+  try {
+    // Lê o token da URL — aceita ?t=, ?token= ou caminho /carteirinha/:token
+    const params = new URLSearchParams(window.location.search);
+    let token = params.get("t") || params.get("token");
+    if (!token) {
+      const pathMatch = window.location.pathname.match(/\/carteirinha\/([^/?#]+)/);
+      if (pathMatch) token = pathMatch[1];
+    }
 
-  if (!token) {
-    document.getElementById("state-loading").classList.add("hidden");
-    document.getElementById("state-error").classList.remove("hidden");
-    return;
-  }
+    console.log("[carteirinha] pathname=", window.location.pathname, "token=", token);
 
-  const { data, error } = await window.sb.rpc("get_carteirinha", { p_token: token });
+    if (!token) {
+      mostrarErro("token não encontrado na URL");
+      return;
+    }
 
-  if (error || !data || data.erro) {
-    console.error("Erro:", error || data);
-    document.getElementById("state-loading").classList.add("hidden");
-    document.getElementById("state-error").classList.remove("hidden");
-    return;
-  }
+    if (!window.sb) {
+      mostrarErro("Supabase não carregou. Verifique conexão.");
+      return;
+    }
+
+    const { data, error } = await window.sb.rpc("get_carteirinha", { p_token: token });
+    console.log("[carteirinha] resposta:", { data, error });
+
+    if (error) {
+      mostrarErro("erro Supabase: " + error.message);
+      return;
+    }
+    if (!data || data.erro) {
+      mostrarErro((data && data.erro) || "carteirinha não encontrada");
+      return;
+    }
 
   // Render
   document.getElementById("nome-cliente").textContent = data.nome;
@@ -262,9 +281,13 @@
     }
   });
 
-  // Reveal
-  document.getElementById("state-loading").classList.add("hidden");
-  document.getElementById("state-main").classList.remove("hidden");
+    // Reveal
+    document.getElementById("state-loading").classList.add("hidden");
+    document.getElementById("state-main").classList.remove("hidden");
+  } catch (err) {
+    console.error("[carteirinha] exceção:", err);
+    mostrarErro((err && err.message) || String(err));
+  }
 })();
 </script>
 </body>
