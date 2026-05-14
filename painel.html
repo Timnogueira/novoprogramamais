@@ -116,37 +116,6 @@
     <!-- Tab: ações -->
     <section id="tab-acoes" class="tab-content hidden max-w-3xl mx-auto px-4 py-6">
       <div class="mb-6">
-        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Walk-in</h2>
-        <p class="text-sm text-[#6B6B6B]">Amiga apareceu sem pré-cadastro — registre aqui.</p>
-      </div>
-      <form id="form-walkin" class="bg-white p-5 rounded-2xl border border-[#EAEAEA] space-y-3 mb-10">
-        <div>
-          <label for="walkin-nome">Nome completo</label>
-          <input type="text" id="walkin-nome" required />
-        </div>
-        <div>
-          <label for="walkin-tel">WhatsApp</label>
-          <input type="tel" id="walkin-tel" required placeholder="(11) 99999-9999" />
-        </div>
-        <div>
-          <label for="walkin-indicadora">Indicadora (cliente Plus)</label>
-          <input type="text" id="walkin-indicadora-busca" placeholder="Buscar cliente Plus..." autocomplete="off" />
-          <div id="walkin-indicadora-resultados" class="mt-1 bg-white border border-[#EAEAEA] rounded-xl hidden divide-y divide-[#F0EFEC]"></div>
-          <input type="hidden" id="walkin-indicadora-id" />
-          <p id="walkin-indicadora-selecionada" class="hidden text-xs text-[#B08D57] mt-1"></p>
-        </div>
-        <div>
-          <label for="walkin-servico">Serviço (opcional)</label>
-          <input type="text" id="walkin-servico" />
-        </div>
-        <label class="flex items-start gap-2 text-sm text-[#1F4E5C] mt-2">
-          <input type="checkbox" id="walkin-optin" class="mt-1 w-4 h-4 accent-[#B08D57]" />
-          Cliente aceita receber WhatsApp sobre o programa
-        </label>
-        <button type="submit" id="btn-walkin" class="btn-primary w-full mt-3">Registrar e confirmar visita</button>
-      </form>
-
-      <div class="mb-6">
         <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Cadastrar cliente Plus existente</h2>
         <p class="text-sm text-[#6B6B6B]">Para popular o sistema com clientes que já são Plus (sem passar pelo fluxo de indicação).</p>
       </div>
@@ -269,7 +238,6 @@ function maskTel(el) {
     e.target.value = v;
   });
 }
-maskTel(document.getElementById("walkin-tel"));
 maskTel(document.getElementById("manual-tel"));
 
 function telE164(input) {
@@ -464,7 +432,7 @@ async function ativarPlus(clienteId, nome) {
   const carteirinhaUrl = `${window.location.origin}/carteirinha/${data.qr_token}`;
 
   const primeiroNome = cli.nome.split(" ")[0];
-  const msg = `Olá, ${primeiroNome}! Que alegria te receber pela segunda vez. A partir de hoje você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}`;
+  const msg = `Olá, ${primeiroNome}! Você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}`;
   const waLink = `https://wa.me/${telParaWaMe(cli.telefone)}?text=${encodeURIComponent(msg)}`;
 
   abrirModal(`
@@ -548,125 +516,12 @@ async function buscarClientes(termo) {
       const nome = btn.dataset.nome;
       const url = btn.dataset.url;
       const primeiroNome = nome.split(" ")[0];
-      const msg = `Olá, ${primeiroNome}! Segue novamente sua carteirinha do Clube Plus.\n\nDica: para acessar mais rápido, abra o link, toque no botão de compartilhar do navegador e escolha "Adicionar à Tela de Início". Vira um atalho direto no seu celular.\n\n${url}`;
+      const msg = `Olá, ${primeiroNome}! Você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo.\n\nAqui está sua carteirinha digital:\n${url}`;
       const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
       window.open(waLink, "_blank");
     });
   });
 }
-
-// =========================================================================
-// Walk-in
-// =========================================================================
-const walkinBusca = document.getElementById("walkin-indicadora-busca");
-const walkinResultados = document.getElementById("walkin-indicadora-resultados");
-const walkinIdInput = document.getElementById("walkin-indicadora-id");
-const walkinSelecionada = document.getElementById("walkin-indicadora-selecionada");
-
-let walkinTimeout = null;
-walkinBusca.addEventListener("input", () => {
-  walkinIdInput.value = "";
-  walkinSelecionada.classList.add("hidden");
-  clearTimeout(walkinTimeout);
-  const termo = walkinBusca.value.trim();
-  if (termo.length < 2) {
-    walkinResultados.classList.add("hidden");
-    return;
-  }
-  walkinTimeout = setTimeout(() => buscarIndicadoraWalkIn(termo), 200);
-});
-
-async function buscarIndicadoraWalkIn(termo) {
-  const { data } = await window.sb.from("clientes")
-    .select("id, nome, telefone")
-    .eq("status", "plus")
-    .or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`)
-    .limit(8);
-
-  walkinResultados.innerHTML = "";
-  if (!data || data.length === 0) {
-    walkinResultados.classList.add("hidden");
-    return;
-  }
-  data.forEach(c => {
-    const item = document.createElement("button");
-    item.type = "button";
-    item.className = "w-full text-left px-4 py-3 hover:bg-[#FAFAF7] flex justify-between items-center";
-    item.innerHTML = `<span class="text-sm text-[#1F4E5C]">${window.escapeHtml(c.nome)}</span><span class="text-xs text-[#6B6B6B]">${window.escapeHtml(c.telefone)}</span>`;
-    item.addEventListener("click", () => {
-      walkinIdInput.value = c.id;
-      walkinBusca.value = c.nome;
-      walkinResultados.classList.add("hidden");
-      walkinSelecionada.textContent = `✓ Indicadora selecionada: ${c.nome}`;
-      walkinSelecionada.classList.remove("hidden");
-    });
-    walkinResultados.appendChild(item);
-  });
-  walkinResultados.classList.remove("hidden");
-}
-
-document.getElementById("form-walkin").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById("btn-walkin");
-  btn.disabled = true; btn.textContent = "Registrando...";
-
-  const nome = document.getElementById("walkin-nome").value.trim();
-  const tel = telE164(document.getElementById("walkin-tel").value);
-  const indId = walkinIdInput.value;
-  const servico = document.getElementById("walkin-servico").value.trim() || null;
-  const optin = document.getElementById("walkin-optin").checked;
-
-  if (!indId) {
-    alert("Selecione a indicadora.");
-    btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
-    return;
-  }
-
-  const { data, error } = await window.sb.rpc("registrar_walk_in", {
-    p_nome: nome,
-    p_telefone: tel,
-    p_indicadora_id: indId,
-    p_opt_in_whatsapp: optin,
-    p_servico_interesse: servico
-  });
-
-  if (error) {
-    alert("Erro: " + error.message);
-    btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
-    return;
-  }
-
-  // Reset
-  e.target.reset();
-  walkinIdInput.value = "";
-  walkinSelecionada.classList.add("hidden");
-
-  // Mostra modal de sucesso com link wa.me para indicadora
-  const { data: indic } = await window.sb.from("clientes")
-    .select("telefone, nome").eq("id", indId).single();
-  const tipoNome = window.fmtTipoVoucher(data.voucher_tipo);
-  const dias = data.voucher_validade_dias;
-  const validadeData = new Date();
-  validadeData.setDate(validadeData.getDate() + dias);
-  const validade = validadeData.toLocaleDateString("pt-BR");
-  const primeiroNomeIndic = (indic.nome || "").split(" ")[0];
-  const linkAssessoria = `https://wa.me/${window.WA_ASSESSORIA}`;
-  const msg = `Olá, ${primeiroNomeIndic}! A ${nome} está comigo aqui no salão, obrigado pela confiança. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Quando quiser usar, é só agendar através do ${linkAssessoria}`;
-  const waLink = `https://wa.me/${telParaWaMe(indic.telefone)}?text=${encodeURIComponent(msg)}`;
-
-  abrirModal(`
-    <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Walk-in registrado</h3>
-    <p class="text-sm text-[#1F4E5C] mb-4">
-      ${window.escapeHtml(nome)} foi cadastrada e marcada como atendida.<br>
-      Voucher de <strong>${window.escapeHtml(tipoNome)}</strong> (${dias} dias) gerado para <strong>${window.escapeHtml(indic.nome)}</strong>.
-    </p>
-    <a href="${waLink}" target="_blank" class="block w-full text-center bg-[#25D366] text-white font-medium py-3 rounded-xl">Enviar voucher pelo WhatsApp</a>
-  `);
-
-  btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
-  carregarPendentes();
-  carregarAtivar();
-});
 
 // =========================================================================
 // Cadastro manual de cliente Plus
