@@ -12,7 +12,6 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="config.js"></script>
 
   <style>
@@ -73,7 +72,7 @@
       <!-- QR Code -->
       <div class="mt-6 flex justify-center">
         <div class="p-4 bg-[#FAFAF7] rounded-2xl border border-[#EAEAEA]">
-          <canvas id="qr-canvas" class="block"></canvas>
+          <img id="qr-img" alt="QR Code do convite" class="block" style="width: 200px; height: 200px;" />
         </div>
       </div>
       <p class="text-center text-[10px] uppercase tracking-widest text-[#6B6B6B] mt-3">Apresente no Salão</p>
@@ -179,12 +178,10 @@
   // QR Code - encode the convite URL using the cliente id
   const baseUrl = window.location.origin + window.location.pathname.replace(/\/carteirinha\.html$/, "");
   const conviteUrl = `${baseUrl}/convite.html?ref=${data.cliente_id}`;
-  if (window.QRCode) {
-    QRCode.toCanvas(document.getElementById("qr-canvas"), conviteUrl, {
-      width: 200, margin: 1,
-      color: { dark: "#1F4E5C", light: "#FAFAF7" }
-    });
-  }
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?` +
+    `size=400x400&data=${encodeURIComponent(conviteUrl)}` +
+    `&color=1F4E5C&bgcolor=FAFAF7&margin=8&qzone=2`;
+  document.getElementById("qr-img").src = qrApiUrl;
 
   // Vouchers
   const vouchersDiv = document.getElementById("vouchers-lista");
