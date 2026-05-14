@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#1F4E5C" />
+  <title>Convite — Fernando Máximo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <style>
+    body { font-family: "Inter", system-ui, sans-serif; background: #FAFAF7; color: #1F4E5C; -webkit-font-smoothing: antialiased; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    .fade-in { animation: fadeIn .6s ease both; }
+    @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform: translateY(0)} }
+    input[type=text], input[type=tel] {
+      width: 100%; padding: 14px 16px; background: #fff; border: 1px solid #E5E5E5;
+      border-radius: 14px; font-size: 16px; color: #1F4E5C; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type=text]:focus, input[type=tel]:focus { border-color: #B08D57; box-shadow: 0 0 0 3px rgba(176,141,87,.15); }
+    label { font-size: 13px; color: #6B6B6B; margin-bottom: 6px; display: block; }
+    .escada-row { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #F0EFEC; }
+    .escada-row:last-child { border-bottom: none; }
+    .escada-num { width: 32px; height: 32px; border-radius: 50%; background: #B08D57; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Loading state -->
+  <div id="state-loading" class="min-h-screen flex items-center justify-center px-6">
+    <div class="mx-auto w-10 h-10 border-2 border-[#B08D57] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Form -->
+  <main id="state-form" class="hidden">
+    <header class="px-6 pt-10 pb-6 text-center fade-in">
+      <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Você foi indicada</p>
+      <h1 class="font-serif text-3xl text-[#1F4E5C] mt-2 leading-tight">
+        <span id="nome-indicadora">Uma amiga</span> te trouxe para conhecer<br>
+        <span class="text-[#B08D57]">Fernando Máximo</span>
+      </h1>
+      <p class="text-sm text-[#6B6B6B] mt-4 max-w-xs mx-auto">
+        Cabeleireiro no Âme Concept, Jardim Paulistano. Faça seu cadastro abaixo e ganhe uma experiência especial na sua primeira visita.
+      </p>
+    </header>
+
+    <!-- Como funciona -->
+    <section class="mx-6 mt-4 bg-white rounded-2xl border border-[#EAEAEA] p-5 fade-in">
+      <p class="text-xs uppercase tracking-widest text-[#6B6B6B] mb-3">Como funciona</p>
+      <ol class="space-y-3 text-sm text-[#1F4E5C]">
+        <li class="flex gap-3"><span class="font-serif text-[#B08D57] font-semibold">1.</span> Você faz o cadastro aqui e agenda pela assessoria.</li>
+        <li class="flex gap-3"><span class="font-serif text-[#B08D57] font-semibold">2.</span> Vai ao salão para o primeiro atendimento.</li>
+        <li class="flex gap-3"><span class="font-serif text-[#B08D57] font-semibold">3.</span> Quando voltar para a segunda visita, você entra no Clube Plus e começa a indicar também.</li>
+      </ol>
+    </section>
+
+    <!-- Formulário -->
+    <section class="mx-6 mt-6 fade-in">
+      <form id="form-cadastro" class="space-y-4">
+        <div>
+          <label for="nome">Seu nome completo</label>
+          <input type="text" id="nome" name="nome" required placeholder="Maria Souza" autocomplete="name" />
+        </div>
+        <div>
+          <label for="telefone">WhatsApp</label>
+          <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999" autocomplete="tel" />
+        </div>
+        <div>
+          <label for="servico">Serviço de interesse <span class="text-[#B0B0B0]">(opcional)</span></label>
+          <input type="text" id="servico" name="servico" placeholder="Ex.: corte, hidratação, consultoria" />
+        </div>
+        <div>
+          <label for="preferencia">Preferência de data <span class="text-[#B0B0B0]">(opcional)</span></label>
+          <input type="text" id="preferencia" name="preferencia" placeholder="Ex.: sábado de manhã, próxima semana" />
+        </div>
+
+        <label class="flex items-start gap-3 mt-6 cursor-pointer">
+          <input type="checkbox" id="optin" class="mt-1 w-5 h-5 accent-[#B08D57] cursor-pointer" />
+          <span class="text-sm text-[#1F4E5C] leading-relaxed">
+            Aceito receber mensagens do Fernando pelo WhatsApp sobre o programa (você pode pedir para parar a qualquer momento).
+          </span>
+        </label>
+
+        <button type="submit" id="btn-enviar"
+                class="w-full bg-[#1F4E5C] hover:bg-[#173B45] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-4 rounded-2xl shadow-sm transition active:scale-[0.98] mt-6">
+          Confirmar cadastro
+        </button>
+        <p class="text-xs text-[#6B6B6B] text-center mt-3">
+          Ao continuar você concorda com o uso dos seus dados apenas para fins do programa, conforme LGPD.
+        </p>
+      </form>
+    </section>
+
+    <footer class="text-center pb-10 pt-12 text-[10px] uppercase tracking-widest text-[#6B6B6B]">
+      Programa  +  · Fernando Máximo
+    </footer>
+  </main>
+
+  <!-- Sucesso -->
+  <main id="state-sucesso" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-sm text-center fade-in">
+      <div class="font-serif text-6xl text-[#B08D57] mb-4">+</div>
+      <h1 class="font-serif text-3xl text-[#1F4E5C] mb-3">Cadastro confirmado</h1>
+      <p class="text-sm text-[#6B6B6B] mb-8 leading-relaxed">
+        Agora é só agendar seu atendimento com a assessoria do Fernando. Toque no botão abaixo para abrir a conversa no WhatsApp.
+      </p>
+      <a id="btn-agendar" href="#"
+         class="block bg-[#1F4E5C] hover:bg-[#173B45] text-white font-medium py-4 rounded-2xl shadow-sm transition active:scale-[0.98]">
+        Agendar pelo WhatsApp
+      </a>
+      <div class="mt-6 text-xs text-[#6B6B6B]">
+        Âme Concept · Jardim Paulistano · SP
+      </div>
+    </div>
+  </main>
+
+  <!-- Erro -->
+  <main id="state-erro" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-sm text-center">
+      <div class="text-5xl mb-4 font-serif text-[#B08D57]">+</div>
+      <h1 class="font-serif text-2xl text-[#1F4E5C] mb-2">Link inválido</h1>
+      <p class="text-sm text-[#6B6B6B]" id="erro-mensagem">Este convite parece inválido. Peça um link novo para quem te indicou.</p>
+    </div>
+  </main>
+
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const indicadoraId = params.get("ref");
+
+  if (!indicadoraId) {
+    document.getElementById("state-loading").classList.add("hidden");
+    document.getElementById("state-erro").classList.remove("hidden");
+    return;
+  }
+
+  // Buscar nome da indicadora
+  const { data, error } = await window.sb.rpc("get_indicadora_publico", { p_id: indicadoraId });
+
+  if (error || !data || data.erro) {
+    console.error("Erro:", error || data);
+    document.getElementById("state-loading").classList.add("hidden");
+    document.getElementById("state-erro").classList.remove("hidden");
+    return;
+  }
+
+  document.getElementById("nome-indicadora").textContent = data.primeiro_nome;
+  document.getElementById("state-loading").classList.add("hidden");
+  document.getElementById("state-form").classList.remove("hidden");
+
+  // Telefone com máscara simples
+  const tel = document.getElementById("telefone");
+  tel.addEventListener("input", e => {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+    e.target.value = v;
+  });
+
+  // Submit
+  const form = document.getElementById("form-cadastro");
+  const btn = document.getElementById("btn-enviar");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+
+    const nome = document.getElementById("nome").value.trim();
+    const telefoneRaw = document.getElementById("telefone").value.replace(/\D/g, "");
+    const servico = document.getElementById("servico").value.trim() || null;
+    const preferencia = document.getElementById("preferencia").value.trim() || null;
+    const optin = document.getElementById("optin").checked;
+
+    if (telefoneRaw.length < 10) {
+      alert("Telefone parece incompleto. Verifique e tente novamente.");
+      btn.disabled = false;
+      btn.textContent = "Confirmar cadastro";
+      return;
+    }
+
+    // Formato E.164: +55 + DDD + número
+    const telefoneE164 = "+55" + telefoneRaw;
+
+    const { error: insErr } = await window.sb.from("pre_cadastros").insert({
+      nome: nome,
+      telefone: telefoneE164,
+      indicada_por_id: indicadoraId,
+      servico_interesse: servico,
+      preferencia_data: preferencia,
+      opt_in_whatsapp: optin,
+      opt_in_data: optin ? new Date().toISOString() : null
+    });
+
+    if (insErr) {
+      console.error(insErr);
+      alert("Não foi possível salvar o cadastro. Tente novamente em alguns segundos.");
+      btn.disabled = false;
+      btn.textContent = "Confirmar cadastro";
+      return;
+    }
+
+    // Sucesso — preparar link wa.me da assessoria
+    const msg = encodeURIComponent(
+      `Olá! Acabei de me cadastrar pelo convite da ${data.primeiro_nome}. Sou ${nome} e gostaria de agendar meu atendimento com o Fernando.${servico ? " Serviço de interesse: " + servico + "." : ""}${preferencia ? " Preferência: " + preferencia + "." : ""}`
+    );
+    document.getElementById("btn-agendar").href = `https://wa.me/${window.WA_ASSESSORIA}?text=${msg}`;
+
+    document.getElementById("state-form").classList.add("hidden");
+    document.getElementById("state-sucesso").classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#1F4E5C" />
+  <title>Carteirinha + — Fernando Máximo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="config.js"></script>
+
+  <style>
+    body { font-family: "Inter", system-ui, sans-serif; background: #FAFAF7; color: #1F4E5C; -webkit-font-smoothing: antialiased; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    .step-dot { transition: all .4s ease; }
+    .step-done { background: #B08D57; color: #fff; transform: scale(1.05); }
+    .step-current { background: #fff; color: #B08D57; border: 2px solid #B08D57; box-shadow: 0 0 0 4px rgba(176,141,87,.15); }
+    .step-pending { background: #fff; color: #C9C9C9; border: 1px solid #E5E5E5; }
+    .step-line-done { background: #B08D57; }
+    .step-line-pending { background: #E5E5E5; }
+    .voucher-card { background: linear-gradient(135deg, #1F4E5C 0%, #173B45 100%); }
+    .voucher-card.usado { background: linear-gradient(135deg, #C9C9C9 0%, #A8A8A8 100%); }
+    .voucher-card.expirado { background: linear-gradient(135deg, #8E8E8E 0%, #6E6E6E 100%); }
+    .skeleton { background: linear-gradient(90deg, #EEE 0%, #F8F8F8 50%, #EEE 100%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .fade-in { animation: fadeIn .6s ease both; }
+    @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform: translateY(0)} }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Loading state -->
+  <div id="state-loading" class="min-h-screen flex items-center justify-center px-6">
+    <div class="text-center">
+      <div class="mx-auto w-12 h-12 border-2 border-[#B08D57] border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-sm text-[#6B6B6B]">Carregando carteirinha...</p>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div id="state-error" class="hidden min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-sm text-center">
+      <div class="text-5xl mb-4 font-serif text-[#B08D57]">+</div>
+      <h1 class="font-serif text-2xl text-[#1F4E5C] mb-2">Carteirinha não encontrada</h1>
+      <p class="text-sm text-[#6B6B6B]">O link parece inválido ou expirado. Peça uma nova carteirinha ao Fernando.</p>
+    </div>
+  </div>
+
+  <!-- Main view -->
+  <main id="state-main" class="hidden">
+
+    <!-- Top bar -->
+    <header class="px-6 pt-8 pb-6 text-center fade-in">
+      <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Carteirinha</p>
+      <h1 class="font-serif text-5xl font-semibold text-[#1F4E5C] mt-1">+</h1>
+      <p class="mt-3 text-xs uppercase tracking-widest text-[#6B6B6B]">Fernando Máximo</p>
+    </header>
+
+    <!-- Card principal -->
+    <section class="mx-6 bg-white rounded-3xl shadow-sm border border-[#E8E2D5] p-6 fade-in">
+      <div class="text-center">
+        <p class="text-xs uppercase tracking-widest text-[#6B6B6B]">Cliente Plus</p>
+        <h2 id="nome-cliente" class="font-serif text-3xl font-medium text-[#1F4E5C] mt-1 leading-tight">—</h2>
+        <p id="virou-plus-em" class="text-xs text-[#6B6B6B] mt-2">—</p>
+      </div>
+
+      <!-- QR Code -->
+      <div class="mt-6 flex justify-center">
+        <div class="p-4 bg-[#FAFAF7] rounded-2xl border border-[#EAEAEA]">
+          <canvas id="qr-canvas" class="block"></canvas>
+        </div>
+      </div>
+      <p class="text-center text-[10px] uppercase tracking-widest text-[#6B6B6B] mt-3">Apresente no Salão</p>
+
+      <!-- Escada -->
+      <div class="mt-8">
+        <p class="text-xs uppercase tracking-widest text-[#6B6B6B] text-center mb-4">Sua escada</p>
+        <div class="flex items-center justify-between max-w-xs mx-auto" id="escada-container"></div>
+        <p class="text-center text-xs text-[#6B6B6B] mt-4">
+          <span id="indicacoes-total">0</span> indicação(ões) confirmada(s) ·
+          Próximo prêmio: <span id="proximo-premio" class="text-[#B08D57] font-medium">—</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Vouchers -->
+    <section class="mx-6 mt-6 fade-in">
+      <h3 class="font-serif text-xl text-[#1F4E5C] mb-3">Vouchers</h3>
+      <div id="vouchers-lista" class="space-y-3"></div>
+      <p id="vouchers-vazio" class="hidden text-sm text-[#6B6B6B] text-center py-6 bg-white rounded-2xl border border-dashed border-[#E5E5E5]">
+        Você ainda não tem vouchers.<br>Indique uma amiga e ganhe o primeiro!
+      </p>
+    </section>
+
+    <!-- Amigas -->
+    <section class="mx-6 mt-6 fade-in">
+      <h3 class="font-serif text-xl text-[#1F4E5C] mb-3">Amigas que floresceram com você</h3>
+      <div id="amigas-lista" class="bg-white rounded-2xl border border-[#EAEAEA] divide-y divide-[#F0EFEC]"></div>
+      <p id="amigas-vazio" class="hidden text-sm text-[#6B6B6B] text-center py-6 bg-white rounded-2xl border border-dashed border-[#E5E5E5]">
+        Suas indicações vão aparecer aqui.
+      </p>
+    </section>
+
+    <!-- Compartilhar -->
+    <section class="mx-6 mt-8 mb-12 fade-in">
+      <button id="btn-compartilhar"
+              class="w-full bg-[#1F4E5C] hover:bg-[#173B45] text-white font-medium py-4 rounded-2xl shadow-sm transition active:scale-[0.98]">
+        Indicar uma amiga
+      </button>
+      <p class="text-xs text-[#6B6B6B] text-center mt-3 px-4">
+        Toque acima para compartilhar este convite com uma amiga.
+        Quando ela for atendida pelo Fernando, você ganha o próximo prêmio.
+      </p>
+    </section>
+
+    <footer class="text-center pb-10 text-[10px] uppercase tracking-widest text-[#6B6B6B]">
+      Âme Concept · Jardim Paulistano · SP
+    </footer>
+
+  </main>
+
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("t") || params.get("token");
+
+  if (!token) {
+    document.getElementById("state-loading").classList.add("hidden");
+    document.getElementById("state-error").classList.remove("hidden");
+    return;
+  }
+
+  const { data, error } = await window.sb.rpc("get_carteirinha", { p_token: token });
+
+  if (error || !data || data.erro) {
+    console.error("Erro:", error || data);
+    document.getElementById("state-loading").classList.add("hidden");
+    document.getElementById("state-error").classList.remove("hidden");
+    return;
+  }
+
+  // Render
+  document.getElementById("nome-cliente").textContent = data.nome;
+  document.getElementById("virou-plus-em").textContent = "Plus desde " + window.fmtData(data.virou_plus_em);
+  document.getElementById("indicacoes-total").textContent = data.indicacoes_total;
+  document.getElementById("proximo-premio").textContent = window.fmtTipoVoucher(data.proximo_premio.tipo);
+
+  // Escada visual
+  const premiosOrdenados = [
+    { ordem: 1, nome: "Hidratação" },
+    { ordem: 2, nome: "Hidr. Premium" },
+    { ordem: 3, nome: "Corte" },
+    { ordem: 4, nome: "Maquiagem" }
+  ];
+  const contagem = data.indicacoes_total % 4;
+  const proximo = data.proximo_premio.ordem;
+  const escada = document.getElementById("escada-container");
+  escada.innerHTML = premiosOrdenados.map((p, idx) => {
+    let stateClass = "step-pending";
+    if (p.ordem < proximo || (contagem === 0 && data.indicacoes_total > 0)) stateClass = "step-done";
+    if (p.ordem === proximo) stateClass = "step-current";
+    return `
+      <div class="flex flex-col items-center" style="flex:1">
+        <div class="step-dot ${stateClass} w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium">
+          ${p.ordem}
+        </div>
+        <p class="text-[10px] text-center mt-2 text-[#6B6B6B] leading-tight">${p.nome}</p>
+      </div>
+      ${idx < 3 ? `<div class="h-px flex-1 mx-1 ${p.ordem < proximo ? 'step-line-done' : 'step-line-pending'}"></div>` : ''}
+    `;
+  }).join("");
+
+  // QR Code - encode the convite URL using the cliente id
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/carteirinha\.html$/, "");
+  const conviteUrl = `${baseUrl}/convite.html?ref=${data.cliente_id}`;
+  if (window.QRCode) {
+    QRCode.toCanvas(document.getElementById("qr-canvas"), conviteUrl, {
+      width: 200, margin: 1,
+      color: { dark: "#1F4E5C", light: "#FAFAF7" }
+    });
+  }
+
+  // Vouchers
+  const vouchersDiv = document.getElementById("vouchers-lista");
+  const ativos = (data.vouchers || []).filter(v => v.status === "ativo");
+  const outros = (data.vouchers || []).filter(v => v.status !== "ativo");
+  const lista = [...ativos, ...outros];
+
+  if (lista.length === 0) {
+    document.getElementById("vouchers-vazio").classList.remove("hidden");
+  } else {
+    vouchersDiv.innerHTML = lista.map(v => {
+      const tipoNome = window.fmtTipoVoucher(v.tipo);
+      const statusLabel = { ativo: "Ativo", usado: "Usado", expirado: "Expirado" }[v.status];
+      const cardClass = v.status === "ativo" ? "voucher-card" : `voucher-card ${v.status}`;
+      return `
+        <article class="${cardClass} text-white rounded-2xl p-5 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest opacity-70">Voucher</p>
+              <h4 class="font-serif text-xl mt-1">${window.escapeHtml(tipoNome)}</h4>
+            </div>
+            <span class="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full ${v.status === 'ativo' ? 'bg-[#B08D57]' : 'bg-white/20'}">${statusLabel}</span>
+          </div>
+          <div class="mt-4 text-xs opacity-80">
+            ${v.status === "ativo"
+              ? `Válido até <strong>${window.fmtData(v.validade)}</strong>`
+              : v.status === "usado"
+                ? `Usado em ${window.fmtData(v.usado_em)}`
+                : `Expirou em ${window.fmtData(v.validade)}`}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  // Amigas
+  const amigasDiv = document.getElementById("amigas-lista");
+  if (!data.amigas || data.amigas.length === 0) {
+    document.getElementById("amigas-vazio").classList.remove("hidden");
+    amigasDiv.classList.add("hidden");
+  } else {
+    amigasDiv.innerHTML = data.amigas.map(a => `
+      <div class="px-4 py-3 flex justify-between items-center">
+        <span class="text-sm text-[#1F4E5C] font-medium">${window.escapeHtml(a.primeiro_nome)}</span>
+        <span class="text-xs text-[#6B6B6B]">${window.fmtData(a.data)}</span>
+      </div>
+    `).join("");
+  }
+
+  // Botão compartilhar
+  document.getElementById("btn-compartilhar").addEventListener("click", async () => {
+    const text = `${data.nome.split(' ')[0]} te indicou ao Fernando Máximo. Faça seu cadastro e ganhe um cuidado especial na sua primeira visita.`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Convite — Fernando Máximo",
+          text: text,
+          url: conviteUrl
+        });
+      } catch (e) {
+        if (e.name !== "AbortError") console.error(e);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(conviteUrl);
+        alert("Link copiado! Cole no WhatsApp da amiga que quer indicar.");
+      } catch (e) {
+        prompt("Copie o link abaixo para enviar à amiga:", conviteUrl);
+      }
+    }
+  });
+
+  // Reveal
+  document.getElementById("state-loading").classList.add("hidden");
+  document.getElementById("state-main").classList.remove("hidden");
+})();
+</script>
+</body>
+</html>

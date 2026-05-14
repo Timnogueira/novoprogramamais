@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#1F4E5C" />
+  <title>Painel — Fernando Máximo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <style>
+    body { font-family: "Inter", system-ui, sans-serif; background: #FAFAF7; color: #1F4E5C; -webkit-font-smoothing: antialiased; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    input, textarea {
+      width: 100%; padding: 12px 14px; background: #fff; border: 1px solid #E5E5E5;
+      border-radius: 12px; font-size: 16px; color: #1F4E5C; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus { border-color: #B08D57; box-shadow: 0 0 0 3px rgba(176,141,87,.15); }
+    label { font-size: 13px; color: #6B6B6B; margin-bottom: 6px; display: block; font-weight: 500; }
+    .btn-primary { background: #1F4E5C; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 500; transition: all .15s; }
+    .btn-primary:hover { background: #173B45; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-gold { background: #B08D57; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 500; transition: all .15s; }
+    .btn-gold:hover { background: #9B7B4A; }
+    .btn-outline { background: white; color: #1F4E5C; padding: 12px 20px; border-radius: 12px; font-weight: 500; border: 1px solid #E5E5E5; transition: all .15s; }
+    .btn-outline:hover { border-color: #B08D57; color: #B08D57; }
+    .tab { padding: 10px 0; font-size: 14px; font-weight: 500; color: #6B6B6B; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; }
+    .tab.active { color: #1F4E5C; border-bottom-color: #B08D57; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+    .badge-amiga { background: #E8F0F2; color: #1F4E5C; }
+    .badge-plus { background: #B08D57; color: white; }
+    .modal-backdrop { background: rgba(27, 27, 27, 0.5); }
+    .fade-in { animation: fadeIn .3s ease both; }
+    @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform: translateY(0)} }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- LOGIN -->
+  <main id="state-login" class="min-h-screen flex items-center justify-center px-6">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Painel</p>
+        <h1 class="font-serif text-3xl text-[#1F4E5C] mt-1">Fernando Máximo</h1>
+      </div>
+
+      <form id="form-login" class="space-y-4 bg-white p-6 rounded-2xl border border-[#EAEAEA] shadow-sm">
+        <div>
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" autocomplete="email" required />
+        </div>
+        <div>
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" autocomplete="current-password" required />
+        </div>
+        <button type="submit" id="btn-login" class="btn-primary w-full">Entrar</button>
+        <p id="login-erro" class="hidden text-sm text-red-600 text-center"></p>
+      </form>
+    </div>
+  </main>
+
+  <!-- APP -->
+  <main id="state-app" class="hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
+      <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div>
+          <p class="font-serif italic text-xs text-[#B08D57] tracking-widest uppercase">Painel</p>
+          <p class="font-serif text-xl text-[#1F4E5C] leading-none">Fernando Máximo</p>
+        </div>
+        <button id="btn-logout" class="text-sm text-[#6B6B6B] hover:text-[#1F4E5C]">Sair</button>
+      </div>
+      <div class="max-w-3xl mx-auto px-4 flex gap-6 border-t border-[#F0F0F0]">
+        <button data-tab="pendencias" class="tab active">Pendências</button>
+        <button data-tab="clientes" class="tab">Clientes</button>
+        <button data-tab="acoes" class="tab">Mais ações</button>
+      </div>
+    </header>
+
+    <!-- Tab: pendências -->
+    <section id="tab-pendencias" class="tab-content max-w-3xl mx-auto px-4 py-6">
+      <div class="mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Pré-cadastros aguardando</h2>
+        <p class="text-sm text-[#6B6B6B]">Amigas indicadas que se cadastraram e ainda não vieram ao salão.</p>
+      </div>
+      <div id="lista-pendentes" class="space-y-3"></div>
+      <p id="pendentes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Nenhum pré-cadastro pendente.</p>
+
+      <div class="mt-10 mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Prontas para ativar como Plus</h2>
+        <p class="text-sm text-[#6B6B6B]">Amigas que já fizeram a segunda visita ou estão na fila de ativação.</p>
+      </div>
+      <div id="lista-ativar" class="space-y-3"></div>
+      <p id="ativar-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Ninguém pronta para ativar agora.</p>
+    </section>
+
+    <!-- Tab: clientes -->
+    <section id="tab-clientes" class="tab-content hidden max-w-3xl mx-auto px-4 py-6">
+      <div class="mb-4">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Clientes</h2>
+        <p class="text-sm text-[#6B6B6B]">Busque por nome ou telefone.</p>
+      </div>
+      <input type="text" id="busca-cliente" placeholder="Buscar..." class="mb-4" />
+      <div id="lista-clientes" class="space-y-3"></div>
+      <p id="clientes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Nenhuma cliente encontrada.</p>
+    </section>
+
+    <!-- Tab: ações -->
+    <section id="tab-acoes" class="tab-content hidden max-w-3xl mx-auto px-4 py-6">
+      <div class="mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Walk-in</h2>
+        <p class="text-sm text-[#6B6B6B]">Amiga apareceu sem pré-cadastro — registre aqui.</p>
+      </div>
+      <form id="form-walkin" class="bg-white p-5 rounded-2xl border border-[#EAEAEA] space-y-3 mb-10">
+        <div>
+          <label for="walkin-nome">Nome completo</label>
+          <input type="text" id="walkin-nome" required />
+        </div>
+        <div>
+          <label for="walkin-tel">WhatsApp</label>
+          <input type="tel" id="walkin-tel" required placeholder="(11) 99999-9999" />
+        </div>
+        <div>
+          <label for="walkin-indicadora">Indicadora (cliente Plus)</label>
+          <input type="text" id="walkin-indicadora-busca" placeholder="Buscar cliente Plus..." autocomplete="off" />
+          <div id="walkin-indicadora-resultados" class="mt-1 bg-white border border-[#EAEAEA] rounded-xl hidden divide-y divide-[#F0EFEC]"></div>
+          <input type="hidden" id="walkin-indicadora-id" />
+          <p id="walkin-indicadora-selecionada" class="hidden text-xs text-[#B08D57] mt-1"></p>
+        </div>
+        <div>
+          <label for="walkin-servico">Serviço (opcional)</label>
+          <input type="text" id="walkin-servico" />
+        </div>
+        <label class="flex items-start gap-2 text-sm text-[#1F4E5C] mt-2">
+          <input type="checkbox" id="walkin-optin" class="mt-1 w-4 h-4 accent-[#B08D57]" />
+          Cliente aceita receber WhatsApp sobre o programa
+        </label>
+        <button type="submit" id="btn-walkin" class="btn-primary w-full mt-3">Registrar e confirmar visita</button>
+      </form>
+
+      <div class="mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Cadastrar cliente Plus existente</h2>
+        <p class="text-sm text-[#6B6B6B]">Para popular o sistema com clientes que já são Plus (sem passar pelo fluxo de indicação).</p>
+      </div>
+      <form id="form-manual" class="bg-white p-5 rounded-2xl border border-[#EAEAEA] space-y-3 mb-10">
+        <div>
+          <label for="manual-nome">Nome completo</label>
+          <input type="text" id="manual-nome" required />
+        </div>
+        <div>
+          <label for="manual-tel">WhatsApp</label>
+          <input type="tel" id="manual-tel" required placeholder="(11) 99999-9999" />
+        </div>
+        <label class="flex items-start gap-2 text-sm text-[#1F4E5C] mt-2">
+          <input type="checkbox" id="manual-optin" class="mt-1 w-4 h-4 accent-[#B08D57]" />
+          Cliente aceita receber WhatsApp sobre o programa
+        </label>
+        <button type="submit" id="btn-manual" class="btn-gold w-full mt-3">Criar como Plus e gerar carteirinha</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- Modal genérico -->
+  <div id="modal-backdrop" class="hidden fixed inset-0 modal-backdrop z-50 flex items-end sm:items-center justify-center px-4 py-6 fade-in">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl">
+      <div id="modal-content"></div>
+      <div class="mt-6 flex justify-end">
+        <button id="modal-close" class="btn-outline">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+let usuarioAuth = null;
+
+async function init() {
+  const { data: { session } } = await window.sb.auth.getSession();
+  if (session) {
+    usuarioAuth = session.user;
+    mostrarApp();
+  } else {
+    mostrarLogin();
+  }
+}
+
+function mostrarLogin() {
+  document.getElementById("state-login").classList.remove("hidden");
+  document.getElementById("state-app").classList.add("hidden");
+}
+
+async function mostrarApp() {
+  document.getElementById("state-login").classList.add("hidden");
+  document.getElementById("state-app").classList.remove("hidden");
+  carregarPendentes();
+  carregarAtivar();
+}
+
+// Login
+document.getElementById("form-login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-login");
+  const erro = document.getElementById("login-erro");
+  btn.disabled = true; btn.textContent = "Entrando...";
+  erro.classList.add("hidden");
+
+  const email = document.getElementById("login-email").value.trim();
+  const senha = document.getElementById("login-senha").value;
+
+  const { data, error } = await window.sb.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    erro.textContent = "E-mail ou senha incorretos.";
+    erro.classList.remove("hidden");
+    btn.disabled = false; btn.textContent = "Entrar";
+    return;
+  }
+
+  usuarioAuth = data.user;
+  mostrarApp();
+});
+
+// Logout
+document.getElementById("btn-logout").addEventListener("click", async () => {
+  await window.sb.auth.signOut();
+  usuarioAuth = null;
+  mostrarLogin();
+});
+
+// Tabs
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const id = tab.dataset.tab;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+    document.getElementById("tab-" + id).classList.remove("hidden");
+    if (id === "clientes") document.getElementById("busca-cliente").focus();
+  });
+});
+
+// Modal
+function abrirModal(html) {
+  document.getElementById("modal-content").innerHTML = html;
+  document.getElementById("modal-backdrop").classList.remove("hidden");
+}
+function fecharModal() {
+  document.getElementById("modal-backdrop").classList.add("hidden");
+}
+document.getElementById("modal-close").addEventListener("click", fecharModal);
+document.getElementById("modal-backdrop").addEventListener("click", (e) => {
+  if (e.target.id === "modal-backdrop") fecharModal();
+});
+
+// Formatador de telefone
+function maskTel(el) {
+  el.addEventListener("input", e => {
+    let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+    if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+    e.target.value = v;
+  });
+}
+maskTel(document.getElementById("walkin-tel"));
+maskTel(document.getElementById("manual-tel"));
+
+function telE164(input) {
+  const raw = input.replace(/\D/g, "");
+  return "+55" + raw;
+}
+
+function telParaWaMe(telE164) {
+  return telE164.replace(/\D/g, "");
+}
+
+// =========================================================================
+// Pendências: pré-cadastros aguardando primeira visita
+// =========================================================================
+async function carregarPendentes() {
+  const { data, error } = await window.sb
+    .from("pre_cadastros")
+    .select("id, nome, telefone, servico_interesse, preferencia_data, opt_in_whatsapp, created_at, indicada_por_id")
+    .eq("convertido_em_visita", false)
+    .order("created_at", { ascending: false });
+
+  const lista = document.getElementById("lista-pendentes");
+  const vazio = document.getElementById("pendentes-vazio");
+  lista.innerHTML = "";
+
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  // Buscar nomes das indicadoras
+  const ids = [...new Set(data.map(p => p.indicada_por_id).filter(Boolean))];
+  let mapaIndic = {};
+  if (ids.length) {
+    const { data: indics } = await window.sb.from("clientes").select("id, nome").in("id", ids);
+    (indics || []).forEach(c => mapaIndic[c.id] = c.nome);
+  }
+
+  data.forEach(p => {
+    const indicadora = p.indicada_por_id ? (mapaIndic[p.indicada_por_id] || "—") : "Sem indicação";
+    const tempo = tempoDesde(p.created_at);
+    const optIcon = p.opt_in_whatsapp ? "✓ aceita WhatsApp" : "✗ não aceita WhatsApp";
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(p.nome)}</h3>
+          <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(p.telefone)} · ${tempo}</p>
+          <p class="text-xs text-[#6B6B6B] mt-1">Indicada por <strong>${window.escapeHtml(indicadora)}</strong></p>
+          ${p.servico_interesse ? `<p class="text-xs text-[#6B6B6B] mt-0.5">Interesse: ${window.escapeHtml(p.servico_interesse)}</p>` : ""}
+          ${p.preferencia_data ? `<p class="text-xs text-[#6B6B6B] mt-0.5">Preferência: ${window.escapeHtml(p.preferencia_data)}</p>` : ""}
+          <p class="text-[10px] text-[#B08D57] mt-1">${optIcon}</p>
+        </div>
+        <button class="btn-primary text-sm whitespace-nowrap" data-confirmar="${p.id}" data-nome="${window.escapeHtml(p.nome)}">Confirmar visita</button>
+      </div>
+    `;
+    lista.appendChild(card);
+  });
+
+  // Bind confirmar visita
+  lista.querySelectorAll("[data-confirmar]").forEach(btn => {
+    btn.addEventListener("click", () => confirmarVisita(btn.dataset.confirmar, btn.dataset.nome));
+  });
+}
+
+async function confirmarVisita(preCadastroId, nome) {
+  if (!confirm(`Confirmar que ${nome} foi atendida agora?`)) return;
+
+  const { data, error } = await window.sb.rpc("confirmar_visita_pre_cadastro", {
+    p_pre_cadastro_id: preCadastroId
+  });
+
+  if (error) {
+    alert("Erro ao confirmar: " + error.message);
+    return;
+  }
+
+  // Buscar telefone da indicadora para gerar wa.me
+  let waLink = "";
+  let mensagemHtml = "";
+  if (data.indicadora_id) {
+    const { data: indic } = await window.sb.from("clientes")
+      .select("telefone, nome, qr_token").eq("id", data.indicadora_id).single();
+
+    const tipoNome = window.fmtTipoVoucher(data.voucher_tipo);
+    const dias = data.voucher_validade_dias;
+    const validadeData = new Date();
+    validadeData.setDate(validadeData.getDate() + dias);
+    const validade = validadeData.toLocaleDateString("pt-BR");
+
+    const primeiroNomeIndic = (indic.nome || "").split(" ")[0];
+    const msgVoucher = `Olá, ${primeiroNomeIndic}! Sua indicação acabou de confirmar a visita aqui no salão. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Quando quiser usar, é só me avisar. Obrigado pela indicação ❤️`;
+
+    waLink = `https://wa.me/${telParaWaMe(indic.telefone)}?text=${encodeURIComponent(msgVoucher)}`;
+    mensagemHtml = `
+      <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Visita confirmada</h3>
+      <p class="text-sm text-[#1F4E5C] mb-4">
+        ${window.escapeHtml(nome)} foi marcada como atendida.<br>
+        Voucher de <strong>${window.escapeHtml(tipoNome)}</strong> (validade ${dias} dias) gerado para <strong>${window.escapeHtml(indic.nome)}</strong>.
+      </p>
+      <a href="${waLink}" target="_blank" class="block w-full text-center bg-[#25D366] hover:bg-[#1FAD52] text-white font-medium py-3 rounded-xl">
+        Enviar voucher pelo WhatsApp
+      </a>
+      <p class="text-xs text-[#6B6B6B] text-center mt-3">Abre o WhatsApp com a mensagem pronta. Confira e toque enviar.</p>
+    `;
+  } else {
+    mensagemHtml = `
+      <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Visita confirmada</h3>
+      <p class="text-sm text-[#1F4E5C]">
+        ${window.escapeHtml(nome)} foi marcada como atendida.<br>
+        <span class="text-[#6B6B6B] text-xs">Esta amiga não tinha indicadora, portanto nenhum voucher foi gerado.</span>
+      </p>
+    `;
+  }
+  abrirModal(mensagemHtml);
+  carregarPendentes();
+  carregarAtivar();
+}
+
+function tempoDesde(iso) {
+  const d = new Date(iso);
+  const diffH = Math.floor((Date.now() - d.getTime()) / 36e5);
+  if (diffH < 1) return "agora há pouco";
+  if (diffH < 24) return `há ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD === 1) return "ontem";
+  if (diffD < 7) return `há ${diffD} dias`;
+  return d.toLocaleDateString("pt-BR");
+}
+
+// =========================================================================
+// Prontas para ativar como Plus (status='amiga' com visitas_count >= 2)
+// =========================================================================
+async function carregarAtivar() {
+  const { data, error } = await window.sb
+    .from("clientes")
+    .select("id, nome, telefone, visitas_count, indicada_por_id, criado_em")
+    .eq("status", "amiga")
+    .gte("visitas_count", 1)
+    .order("visitas_count", { ascending: false });
+
+  const lista = document.getElementById("lista-ativar");
+  const vazio = document.getElementById("ativar-vazio");
+  lista.innerHTML = "";
+
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  data.forEach(c => {
+    const podeAtivar = c.visitas_count >= 1;
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
+            <span class="badge badge-amiga">amiga</span>
+          </div>
+          <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
+          <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) confirmada(s)</p>
+        </div>
+        <button class="btn-gold text-sm whitespace-nowrap" data-ativar="${c.id}" data-nome="${window.escapeHtml(c.nome)}">
+          ${c.visitas_count >= 2 ? "Ativar como Plus" : "Ativar com a 2ª visita"}
+        </button>
+      </div>
+    `;
+    lista.appendChild(card);
+  });
+
+  lista.querySelectorAll("[data-ativar]").forEach(btn => {
+    btn.addEventListener("click", () => ativarPlus(btn.dataset.ativar, btn.dataset.nome));
+  });
+}
+
+async function ativarPlus(clienteId, nome) {
+  if (!confirm(`Ativar ${nome} como cliente Plus agora? Esta é a "cerimônia" de entrega da carteirinha.`)) return;
+
+  const { data, error } = await window.sb.rpc("ativar_cliente_plus", { p_cliente_id: clienteId });
+
+  if (error) {
+    alert("Erro ao ativar: " + error.message);
+    return;
+  }
+
+  // Buscar telefone
+  const { data: cli } = await window.sb.from("clientes")
+    .select("telefone, nome").eq("id", clienteId).single();
+
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/painel\.html$/, "");
+  const carteirinhaUrl = `${baseUrl}/carteirinha.html?t=${data.qr_token}`;
+
+  const primeiroNome = cli.nome.split(" ")[0];
+  const msg = `Olá, ${primeiroNome}! Que alegria te receber pela segunda vez. A partir de hoje você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo. Aqui está sua carteirinha digital: ${carteirinhaUrl}`;
+  const waLink = `https://wa.me/${telParaWaMe(cli.telefone)}?text=${encodeURIComponent(msg)}`;
+
+  abrirModal(`
+    <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Bem-vinda ao Clube Plus</h3>
+    <p class="text-sm text-[#1F4E5C] mb-4">
+      <strong>${window.escapeHtml(cli.nome)}</strong> agora é cliente Plus.<br>
+      Carteirinha gerada e pronta para enviar.
+    </p>
+    <a href="${carteirinhaUrl}" target="_blank" class="block w-full text-center bg-[#1F4E5C] text-white font-medium py-3 rounded-xl mb-3">
+      Ver carteirinha
+    </a>
+    <a href="${waLink}" target="_blank" class="block w-full text-center bg-[#25D366] hover:bg-[#1FAD52] text-white font-medium py-3 rounded-xl">
+      Enviar carteirinha pelo WhatsApp
+    </a>
+  `);
+  carregarAtivar();
+}
+
+// =========================================================================
+// Tab clientes — busca
+// =========================================================================
+const buscaInput = document.getElementById("busca-cliente");
+let buscaTimeout = null;
+buscaInput.addEventListener("input", () => {
+  clearTimeout(buscaTimeout);
+  buscaTimeout = setTimeout(() => buscarClientes(buscaInput.value.trim()), 250);
+});
+
+async function buscarClientes(termo) {
+  const lista = document.getElementById("lista-clientes");
+  const vazio = document.getElementById("clientes-vazio");
+
+  let query = window.sb.from("clientes").select("id, nome, telefone, status, visitas_count, qr_token, virou_plus_em");
+  if (termo) {
+    query = query.or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`);
+  }
+  query = query.order("criado_em", { ascending: false }).limit(50);
+
+  const { data, error } = await query;
+
+  lista.innerHTML = "";
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) {
+    vazio.classList.remove("hidden");
+    return;
+  }
+  vazio.classList.add("hidden");
+
+  data.forEach(c => {
+    const isPlus = c.status === "plus";
+    const carteirinhaUrl = isPlus && c.qr_token
+      ? `${window.location.origin}${window.location.pathname.replace(/\/painel\.html$/, "")}/carteirinha.html?t=${c.qr_token}`
+      : null;
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
+            <span class="badge ${isPlus ? "badge-plus" : "badge-amiga"}">${isPlus ? "Plus" : "amiga"}</span>
+          </div>
+          <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
+          <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) ${isPlus && c.virou_plus_em ? "· Plus desde " + window.fmtData(c.virou_plus_em) : ""}</p>
+        </div>
+        ${carteirinhaUrl ? `<a href="${carteirinhaUrl}" target="_blank" class="btn-outline text-sm whitespace-nowrap">Ver carteirinha</a>` : ""}
+      </div>
+    `;
+    lista.appendChild(card);
+  });
+}
+
+// =========================================================================
+// Walk-in
+// =========================================================================
+const walkinBusca = document.getElementById("walkin-indicadora-busca");
+const walkinResultados = document.getElementById("walkin-indicadora-resultados");
+const walkinIdInput = document.getElementById("walkin-indicadora-id");
+const walkinSelecionada = document.getElementById("walkin-indicadora-selecionada");
+
+let walkinTimeout = null;
+walkinBusca.addEventListener("input", () => {
+  walkinIdInput.value = "";
+  walkinSelecionada.classList.add("hidden");
+  clearTimeout(walkinTimeout);
+  const termo = walkinBusca.value.trim();
+  if (termo.length < 2) {
+    walkinResultados.classList.add("hidden");
+    return;
+  }
+  walkinTimeout = setTimeout(() => buscarIndicadoraWalkIn(termo), 200);
+});
+
+async function buscarIndicadoraWalkIn(termo) {
+  const { data } = await window.sb.from("clientes")
+    .select("id, nome, telefone")
+    .eq("status", "plus")
+    .or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`)
+    .limit(8);
+
+  walkinResultados.innerHTML = "";
+  if (!data || data.length === 0) {
+    walkinResultados.classList.add("hidden");
+    return;
+  }
+  data.forEach(c => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "w-full text-left px-4 py-3 hover:bg-[#FAFAF7] flex justify-between items-center";
+    item.innerHTML = `<span class="text-sm text-[#1F4E5C]">${window.escapeHtml(c.nome)}</span><span class="text-xs text-[#6B6B6B]">${window.escapeHtml(c.telefone)}</span>`;
+    item.addEventListener("click", () => {
+      walkinIdInput.value = c.id;
+      walkinBusca.value = c.nome;
+      walkinResultados.classList.add("hidden");
+      walkinSelecionada.textContent = `✓ Indicadora selecionada: ${c.nome}`;
+      walkinSelecionada.classList.remove("hidden");
+    });
+    walkinResultados.appendChild(item);
+  });
+  walkinResultados.classList.remove("hidden");
+}
+
+document.getElementById("form-walkin").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-walkin");
+  btn.disabled = true; btn.textContent = "Registrando...";
+
+  const nome = document.getElementById("walkin-nome").value.trim();
+  const tel = telE164(document.getElementById("walkin-tel").value);
+  const indId = walkinIdInput.value;
+  const servico = document.getElementById("walkin-servico").value.trim() || null;
+  const optin = document.getElementById("walkin-optin").checked;
+
+  if (!indId) {
+    alert("Selecione a indicadora.");
+    btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
+    return;
+  }
+
+  const { data, error } = await window.sb.rpc("registrar_walk_in", {
+    p_nome: nome,
+    p_telefone: tel,
+    p_indicadora_id: indId,
+    p_opt_in_whatsapp: optin,
+    p_servico_interesse: servico
+  });
+
+  if (error) {
+    alert("Erro: " + error.message);
+    btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
+    return;
+  }
+
+  // Reset
+  e.target.reset();
+  walkinIdInput.value = "";
+  walkinSelecionada.classList.add("hidden");
+
+  // Mostra modal de sucesso com link wa.me para indicadora
+  const { data: indic } = await window.sb.from("clientes")
+    .select("telefone, nome").eq("id", indId).single();
+  const tipoNome = window.fmtTipoVoucher(data.voucher_tipo);
+  const dias = data.voucher_validade_dias;
+  const validadeData = new Date();
+  validadeData.setDate(validadeData.getDate() + dias);
+  const validade = validadeData.toLocaleDateString("pt-BR");
+  const primeiroNomeIndic = (indic.nome || "").split(" ")[0];
+  const msg = `Olá, ${primeiroNomeIndic}! Sua indicação acabou de confirmar a visita aqui no salão. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Obrigado pela indicação ❤️`;
+  const waLink = `https://wa.me/${telParaWaMe(indic.telefone)}?text=${encodeURIComponent(msg)}`;
+
+  abrirModal(`
+    <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Walk-in registrado</h3>
+    <p class="text-sm text-[#1F4E5C] mb-4">
+      ${window.escapeHtml(nome)} foi cadastrada e marcada como atendida.<br>
+      Voucher de <strong>${window.escapeHtml(tipoNome)}</strong> (${dias} dias) gerado para <strong>${window.escapeHtml(indic.nome)}</strong>.
+    </p>
+    <a href="${waLink}" target="_blank" class="block w-full text-center bg-[#25D366] text-white font-medium py-3 rounded-xl">Enviar voucher pelo WhatsApp</a>
+  `);
+
+  btn.disabled = false; btn.textContent = "Registrar e confirmar visita";
+  carregarPendentes();
+  carregarAtivar();
+});
+
+// =========================================================================
+// Cadastro manual de cliente Plus
+// =========================================================================
+document.getElementById("form-manual").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-manual");
+  btn.disabled = true; btn.textContent = "Criando...";
+
+  const nome = document.getElementById("manual-nome").value.trim();
+  const tel = telE164(document.getElementById("manual-tel").value);
+  const optin = document.getElementById("manual-optin").checked;
+
+  // Cria o cliente direto como Plus (visitas_count=2 para passar na validação)
+  const { data: novo, error: errIns } = await window.sb.from("clientes").insert({
+    nome,
+    telefone: tel,
+    status: "amiga",  // será atualizado por ativar_cliente_plus
+    visitas_count: 2,
+    opt_in_whatsapp: optin,
+    opt_in_data: optin ? new Date().toISOString() : null
+  }).select().single();
+
+  if (errIns) {
+    alert("Erro: " + errIns.message);
+    btn.disabled = false; btn.textContent = "Criar como Plus e gerar carteirinha";
+    return;
+  }
+
+  const { data: ativ, error: errAtv } = await window.sb.rpc("ativar_cliente_plus", { p_cliente_id: novo.id });
+
+  if (errAtv) {
+    alert("Cliente criada mas falha ao ativar: " + errAtv.message);
+    btn.disabled = false; btn.textContent = "Criar como Plus e gerar carteirinha";
+    return;
+  }
+
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/painel\.html$/, "");
+  const carteirinhaUrl = `${baseUrl}/carteirinha.html?t=${ativ.qr_token}`;
+  const primeiroNome = nome.split(" ")[0];
+  const msg = `Olá, ${primeiroNome}! Você agora faz parte do meu Clube Plus. Toda vez que indicar uma amiga e ela vier ao salão, você ganha um cuidado especial. Aqui está sua carteirinha: ${carteirinhaUrl}`;
+  const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
+
+  e.target.reset();
+
+  abrirModal(`
+    <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Cliente Plus criada</h3>
+    <p class="text-sm text-[#1F4E5C] mb-4">
+      ${window.escapeHtml(nome)} foi cadastrada como cliente Plus.<br>
+      Carteirinha gerada e pronta para enviar.
+    </p>
+    <a href="${carteirinhaUrl}" target="_blank" class="block w-full text-center bg-[#1F4E5C] text-white font-medium py-3 rounded-xl mb-3">Ver carteirinha</a>
+    <a href="${waLink}" target="_blank" class="block w-full text-center bg-[#25D366] text-white font-medium py-3 rounded-xl">Enviar carteirinha pelo WhatsApp</a>
+  `);
+
+  btn.disabled = false; btn.textContent = "Criar como Plus e gerar carteirinha";
+});
+
+// Start
+init();
+</script>
+</body>
+</html>
