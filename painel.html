@@ -361,7 +361,8 @@ async function confirmarVisita(preCadastroId, nome) {
     const validade = validadeData.toLocaleDateString("pt-BR");
 
     const primeiroNomeIndic = (indic.nome || "").split(" ")[0];
-    const msgVoucher = `Olá, ${primeiroNomeIndic}! Sua indicação acabou de confirmar a visita aqui no salão. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Quando quiser usar, é só me avisar. Obrigado pela indicação ❤️`;
+    const linkAssessoria = `https://wa.me/${window.WA_ASSESSORIA}`;
+    const msgVoucher = `Olá, ${primeiroNomeIndic}! A ${nome} está comigo aqui no salão, obrigado pela confiança. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Quando quiser usar, é só agendar através do ${linkAssessoria}`;
 
     waLink = `https://wa.me/${telParaWaMe(indic.telefone)}?text=${encodeURIComponent(msgVoucher)}`;
     mensagemHtml = `
@@ -649,7 +650,8 @@ document.getElementById("form-walkin").addEventListener("submit", async (e) => {
   validadeData.setDate(validadeData.getDate() + dias);
   const validade = validadeData.toLocaleDateString("pt-BR");
   const primeiroNomeIndic = (indic.nome || "").split(" ")[0];
-  const msg = `Olá, ${primeiroNomeIndic}! Sua indicação acabou de confirmar a visita aqui no salão. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Obrigado pela indicação ❤️`;
+  const linkAssessoria = `https://wa.me/${window.WA_ASSESSORIA}`;
+  const msg = `Olá, ${primeiroNomeIndic}! A ${nome} está comigo aqui no salão, obrigado pela confiança. Você ganhou um voucher de ${tipoNome}, válido até ${validade}. Quando quiser usar, é só agendar através do ${linkAssessoria}`;
   const waLink = `https://wa.me/${telParaWaMe(indic.telefone)}?text=${encodeURIComponent(msg)}`;
 
   abrirModal(`
