@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="theme-color" content="#1F4E5C" />
-  <title>Convite — Fernando Máximo</title>
+  <title>Convite — Férnando Máximo</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -44,7 +44,7 @@
       <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Você foi indicada</p>
       <h1 class="font-serif text-3xl text-[#1F4E5C] mt-2 leading-tight">
         <span id="nome-indicadora">Uma amiga</span> te trouxe para conhecer<br>
-        <span class="text-[#B08D57]">Fernando Máximo</span>
+        <span class="text-[#B08D57]">Férnando Máximo</span>
       </h1>
       <p class="text-sm text-[#6B6B6B] mt-4 max-w-xs mx-auto">
         Cabeleireiro no Âme Concept, Jardim Paulistano. Faça seu cadastro abaixo e ganhe uma experiência especial na sua primeira visita.
@@ -84,7 +84,7 @@
         <label class="flex items-start gap-3 mt-6 cursor-pointer">
           <input type="checkbox" id="optin" class="mt-1 w-5 h-5 accent-[#B08D57] cursor-pointer" />
           <span class="text-sm text-[#1F4E5C] leading-relaxed">
-            Aceito receber mensagens do Fernando pelo WhatsApp sobre o programa (você pode pedir para parar a qualquer momento).
+            Aceito receber mensagens do Férnando pelo WhatsApp sobre o programa (você pode pedir para parar a qualquer momento).
           </span>
         </label>
 
@@ -99,7 +99,7 @@
     </section>
 
     <footer class="text-center pb-10 pt-12 text-[10px] uppercase tracking-widest text-[#6B6B6B]">
-      Programa  +  · Fernando Máximo
+      Programa  +  · Férnando Máximo
     </footer>
   </main>
 
@@ -109,7 +109,7 @@
       <div class="font-serif text-6xl text-[#B08D57] mb-4">+</div>
       <h1 class="font-serif text-3xl text-[#1F4E5C] mb-3">Cadastro confirmado</h1>
       <p class="text-sm text-[#6B6B6B] mb-8 leading-relaxed">
-        Agora é só agendar seu atendimento com a assessoria do Fernando. Toque no botão abaixo para abrir a conversa no WhatsApp.
+        Agora é só agendar seu atendimento com a assessoria do Férnando. Toque no botão abaixo para abrir a conversa no WhatsApp.
       </p>
       <a id="btn-agendar" href="#"
          class="block bg-[#1F4E5C] hover:bg-[#173B45] text-white font-medium py-4 rounded-2xl shadow-sm transition active:scale-[0.98]">
@@ -214,7 +214,7 @@
 
     // Sucesso — preparar link wa.me da assessoria
     const msg = encodeURIComponent(
-      `Olá! Acabei de me cadastrar pelo convite da ${data.primeiro_nome}. Sou ${nome} e gostaria de agendar meu atendimento com o Fernando.${servico ? " Serviço de interesse: " + servico + "." : ""}${preferencia ? " Preferência: " + preferencia + "." : ""}`
+      `Olá! Acabei de me cadastrar pelo convite da ${data.primeiro_nome}. Sou ${nome} e gostaria de agendar meu atendimento com o Férnando.${servico ? " Serviço de interesse: " + servico + "." : ""}${preferencia ? " Preferência: " + preferencia + "." : ""}`
     );
     document.getElementById("btn-agendar").href = `https://wa.me/${window.WA_ASSESSORIA}?text=${msg}`;
 

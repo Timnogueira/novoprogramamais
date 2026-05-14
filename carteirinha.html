@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="theme-color" content="#1F4E5C" />
-  <title>Carteirinha + — Fernando Máximo</title>
+  <title>Carteirinha + — Férnando Máximo</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,7 +47,7 @@
     <div class="max-w-sm text-center">
       <div class="text-5xl mb-4 font-serif text-[#B08D57]">+</div>
       <h1 class="font-serif text-2xl text-[#1F4E5C] mb-2">Carteirinha não encontrada</h1>
-      <p class="text-sm text-[#6B6B6B]">O link parece inválido ou expirado. Peça uma nova carteirinha ao Fernando.</p>
+      <p class="text-sm text-[#6B6B6B]">O link parece inválido ou expirado. Peça uma nova carteirinha ao Férnando.</p>
     </div>
   </div>
 
@@ -58,7 +58,7 @@
     <header class="px-6 pt-8 pb-6 text-center fade-in">
       <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Carteirinha</p>
       <h1 class="font-serif text-5xl font-semibold text-[#1F4E5C] mt-1">+</h1>
-      <p class="mt-3 text-xs uppercase tracking-widest text-[#6B6B6B]">Fernando Máximo</p>
+      <p class="mt-3 text-xs uppercase tracking-widest text-[#6B6B6B]">Férnando Máximo</p>
     </header>
 
     <!-- Card principal -->
@@ -114,7 +114,7 @@
       </button>
       <p class="text-xs text-[#6B6B6B] text-center mt-3 px-4">
         Toque acima para compartilhar este convite com uma amiga.
-        Quando ela for atendida pelo Fernando, você ganha o próximo prêmio.
+        Quando ela for atendida pelo Férnando, você ganha o próximo prêmio.
       </p>
     </section>
 
@@ -177,7 +177,7 @@ function mostrarErro(detalhe) {
   // Escada visual
   const premiosOrdenados = [
     { ordem: 1, nome: "Hidratação" },
-    { ordem: 2, nome: "Hidr. Premium" },
+    { ordem: 2, nome: "Reconstrução" },
     { ordem: 3, nome: "Corte" },
     { ordem: 4, nome: "Maquiagem" }
   ];
@@ -258,14 +258,14 @@ function mostrarErro(detalhe) {
   // Botão compartilhar
   document.getElementById("btn-compartilhar").addEventListener("click", async () => {
     const mensagem =
-      `Oi! Queria te indicar meu cabeleireiro e maquiador Fernando Máximo. ` +
-      `Fazendo parte do programa de indicação, você tem uma condição especial para a primeira visita.\n\n` +
-      conviteUrl;
+      `Oi! Queria te indicar meu cabeleireiro e maquiador Férnando Máximo. ` +
+      `Conheça o trabalho dele no Instagram: https://instagram.com/fernand0maximo\n\n` +
+      `Fazendo parte do programa de indicação dele, você tem uma condição especial para a primeira visita. Faz seu cadastro por aqui:\n${conviteUrl}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Convite — Fernando Máximo",
+          title: "Convite — Férnando Máximo",
           text: mensagem
         });
       } catch (e) {

@@ -1,12 +1,6 @@
 {
   "rewrites": [
-    {
-      "source": "/cadastro/:ref",
-      "destination": "/convite.html?ref=:ref"
-    },
-    {
-      "source": "/carteirinha/:token",
-      "destination": "/carteirinha.html?t=:token"
-    }
+    { "source": "/cadastro/:ref", "destination": "/convite.html?ref=:ref" },
+    { "source": "/carteirinha/:token", "destination": "/carteirinha.html?t=:token" }
   ]
 }

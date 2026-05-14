@@ -1,4 +1,4 @@
-// Configuração compartilhada do projeto Programa + de Fernando Máximo.
+// Configuração compartilhada do projeto Programa + de Férnando Máximo.
 // Estes dados são públicos por design — a chave anon/publishable é seguro
 // expor no frontend, e a segurança fica por conta do RLS no Supabase.
 
@@ -10,11 +10,12 @@ window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Helpers globais
 
-window.WA_ASSESSORIA = "5511913239335"; // TROCAR: número da assessoria do Fernando para agendamento (formato 55+DDD+número, sem símbolos)
-window.NOME_PROFISSIONAL = "Fernando Máximo";
+window.WA_ASSESSORIA = "5511913239335"; // TROCAR: número da assessoria do Férnando para agendamento (formato 55+DDD+número, sem símbolos)
+window.NOME_PROFISSIONAL = "Férnando Máximo";
 window.NOME_SALAO = "Âme Concept";
 window.NOME_PROGRAMA = "+";
 window.ENDERECO_SALAO = "Jardim Paulistano, São Paulo / SP";
+window.INSTAGRAM_URL = "https://instagram.com/fernand0maximo";
 
 // Helpers
 window.fmtData = (iso) => {
@@ -25,7 +26,8 @@ window.fmtData = (iso) => {
 
 window.fmtTipoVoucher = (tipo) => ({
   hidratacao: "Hidratação",
-  hidratacao_premium: "Hidratação Premium",
+  hidratacao_premium: "Reconstrução capilar",
+  reconstrucao_capilar: "Reconstrução capilar",
   corte: "Corte",
   maquiagem: "Maquiagem"
 }[tipo] || tipo);
