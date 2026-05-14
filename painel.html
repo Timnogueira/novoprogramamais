@@ -529,10 +529,28 @@ async function buscarClientes(termo) {
           <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
           <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) ${isPlus && c.virou_plus_em ? "· Plus desde " + window.fmtData(c.virou_plus_em) : ""}</p>
         </div>
-        ${carteirinhaUrl ? `<a href="${carteirinhaUrl}" target="_blank" class="btn-outline text-sm whitespace-nowrap">Ver carteirinha</a>` : ""}
+        ${carteirinhaUrl ? `
+          <div class="flex flex-col gap-2 items-stretch">
+            <a href="${carteirinhaUrl}" target="_blank" class="btn-outline text-xs whitespace-nowrap text-center">Ver carteirinha</a>
+            <button data-reenviar="${c.id}" data-tel="${window.escapeHtml(c.telefone)}" data-nome="${window.escapeHtml(c.nome)}" data-url="${carteirinhaUrl}" class="btn-primary text-xs whitespace-nowrap">Reenviar carteirinha</button>
+          </div>
+        ` : ""}
       </div>
     `;
     lista.appendChild(card);
+  });
+
+  // Bind reenviar carteirinha
+  lista.querySelectorAll("[data-reenviar]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tel = btn.dataset.tel;
+      const nome = btn.dataset.nome;
+      const url = btn.dataset.url;
+      const primeiroNome = nome.split(" ")[0];
+      const msg = `Olá, ${primeiroNome}! Segue novamente sua carteirinha do Clube Plus.\n\nDica: para acessar mais rápido, abra o link, toque no botão de compartilhar do navegador e escolha "Adicionar à Tela de Início". Vira um atalho direto no seu celular.\n\n${url}`;
+      const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
+      window.open(waLink, "_blank");
+    });
   });
 }
 
