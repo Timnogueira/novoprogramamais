@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#1F4E5C" />
+  <title>Assessoria — Férnando Máximo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/config.js"></script>
+
+  <style>
+    body { font-family: "Inter", system-ui, sans-serif; background: #FAFAF7; color: #1F4E5C; -webkit-font-smoothing: antialiased; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    input { width: 100%; padding: 12px 14px; background: #fff; border: 1px solid #E5E5E5; border-radius: 12px; font-size: 16px; color: #1F4E5C; outline: none; transition: border-color .15s, box-shadow .15s; }
+    input:focus { border-color: #B08D57; box-shadow: 0 0 0 3px rgba(176,141,87,.15); }
+    label { font-size: 13px; color: #6B6B6B; margin-bottom: 6px; display: block; font-weight: 500; }
+    .btn-primary { background: #1F4E5C; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 500; transition: all .15s; }
+    .btn-primary:hover { background: #173B45; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .tab { padding: 10px 0; font-size: 14px; font-weight: 500; color: #6B6B6B; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; }
+    .tab.active { color: #1F4E5C; border-bottom-color: #B08D57; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+    .badge-amiga { background: #E8F0F2; color: #1F4E5C; }
+    .badge-plus { background: #B08D57; color: white; }
+    .stat-card { background: white; border: 1px solid #EAEAEA; border-radius: 14px; padding: 14px; }
+    .stat-val { font-family: "Playfair Display", serif; font-size: 1.8rem; color: #1F4E5C; line-height: 1; }
+    .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #6B6B6B; margin-top: 6px; }
+    .fade-in { animation: fadeIn .3s ease both; }
+    @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform: translateY(0)} }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- LOGIN -->
+  <main id="state-login" class="min-h-screen flex items-center justify-center px-6">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <p class="font-serif italic text-sm text-[#B08D57] tracking-widest uppercase">Assessoria</p>
+        <h1 class="font-serif text-3xl text-[#1F4E5C] mt-1">Férnando Máximo</h1>
+        <p class="text-xs text-[#6B6B6B] mt-2">Consulta de clientes, vouchers e indicações</p>
+      </div>
+
+      <form id="form-login" class="space-y-4 bg-white p-6 rounded-2xl border border-[#EAEAEA] shadow-sm">
+        <div>
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" autocomplete="email" required />
+        </div>
+        <div>
+          <label for="login-senha">Senha</label>
+          <input type="password" id="login-senha" autocomplete="current-password" required />
+        </div>
+        <button type="submit" id="btn-login" class="btn-primary w-full">Entrar</button>
+        <p id="login-erro" class="hidden text-sm text-red-600 text-center"></p>
+      </form>
+    </div>
+  </main>
+
+  <!-- APP -->
+  <main id="state-app" class="hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
+      <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div>
+          <p class="font-serif italic text-xs text-[#B08D57] tracking-widest uppercase">Assessoria</p>
+          <p class="font-serif text-xl text-[#1F4E5C] leading-none">Férnando Máximo</p>
+        </div>
+        <button id="btn-logout" class="text-sm text-[#6B6B6B] hover:text-[#1F4E5C]">Sair</button>
+      </div>
+      <div class="max-w-3xl mx-auto px-4 flex gap-6 border-t border-[#F0F0F0]">
+        <button data-tab="visao" class="tab active">Visão geral</button>
+        <button data-tab="clientes" class="tab">Clientes</button>
+      </div>
+    </header>
+
+    <!-- Tab: visão geral -->
+    <section id="tab-visao" class="tab-content max-w-3xl mx-auto px-4 py-6">
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        <div class="stat-card">
+          <p class="stat-val" id="stat-plus">—</p>
+          <p class="stat-label">Clientes Plus</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-val" id="stat-amigas">—</p>
+          <p class="stat-label">Amigas indicadas</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-val" id="stat-vouchers">—</p>
+          <p class="stat-label">Vouchers ativos</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-val text-orange-600" id="stat-vencendo">—</p>
+          <p class="stat-label">Vencem em 7 dias</p>
+        </div>
+      </div>
+
+      <!-- Pré-cadastros -->
+      <div class="mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Pré-cadastros aguardando</h2>
+        <p class="text-sm text-[#6B6B6B]">Amigas indicadas que se cadastraram e ainda não vieram ao salão.</p>
+      </div>
+      <div id="lista-pendentes" class="space-y-3"></div>
+      <p id="pendentes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-6">Nenhum pré-cadastro pendente.</p>
+
+      <!-- Vouchers -->
+      <div class="mt-10 mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Vouchers ativos</h2>
+        <p class="text-sm text-[#6B6B6B]">Em ordem de vencimento — os mais próximos aparecem primeiro.</p>
+      </div>
+      <div id="lista-vouchers" class="space-y-3"></div>
+      <p id="vouchers-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-6">Nenhum voucher ativo no momento.</p>
+    </section>
+
+    <!-- Tab: clientes -->
+    <section id="tab-clientes" class="tab-content hidden max-w-3xl mx-auto px-4 py-6">
+      <div class="mb-4">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Clientes</h2>
+        <p class="text-sm text-[#6B6B6B]">Busque por nome ou telefone.</p>
+      </div>
+      <input type="text" id="busca-cliente" placeholder="Buscar..." class="mb-4" />
+      <div id="lista-clientes" class="space-y-3"></div>
+      <p id="clientes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-10">Nenhuma cliente encontrada.</p>
+    </section>
+
+    <footer class="text-center pt-10 pb-8 text-[10px] uppercase tracking-widest text-[#6B6B6B]">
+      Acesso de consulta · Assessoria<br>
+      <a href="/termos.html" target="_blank" class="hover:text-[#B08D57]">Termos e Condições</a>
+    </footer>
+
+  </main>
+
+<script>
+async function init() {
+  const { data: { session } } = await window.sb.auth.getSession();
+  if (session) mostrarApp(); else mostrarLogin();
+}
+function mostrarLogin() {
+  document.getElementById("state-login").classList.remove("hidden");
+  document.getElementById("state-app").classList.add("hidden");
+}
+async function mostrarApp() {
+  document.getElementById("state-login").classList.add("hidden");
+  document.getElementById("state-app").classList.remove("hidden");
+  carregarStats();
+  carregarPendentes();
+  carregarVouchers();
+}
+
+document.getElementById("form-login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-login");
+  const erro = document.getElementById("login-erro");
+  btn.disabled = true; btn.textContent = "Entrando...";
+  erro.classList.add("hidden");
+
+  const email = document.getElementById("login-email").value.trim();
+  const senha = document.getElementById("login-senha").value;
+  const { error } = await window.sb.auth.signInWithPassword({ email, password: senha });
+
+  if (error) {
+    erro.textContent = "E-mail ou senha incorretos.";
+    erro.classList.remove("hidden");
+    btn.disabled = false; btn.textContent = "Entrar";
+    return;
+  }
+  mostrarApp();
+});
+
+document.getElementById("btn-logout").addEventListener("click", async () => {
+  await window.sb.auth.signOut();
+  mostrarLogin();
+});
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const id = tab.dataset.tab;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
+    document.getElementById("tab-" + id).classList.remove("hidden");
+    if (id === "clientes") {
+      buscarClientes("");
+      document.getElementById("busca-cliente").focus();
+    }
+  });
+});
+
+// =========================================================================
+// Stats
+// =========================================================================
+async function carregarStats() {
+  const [plus, amigas, vouchersAtivos] = await Promise.all([
+    window.sb.from("clientes").select("id", { count: "exact", head: true }).eq("status", "plus"),
+    window.sb.from("clientes").select("id", { count: "exact", head: true }).eq("status", "amiga"),
+    window.sb.from("vouchers").select("validade", { count: "exact" }).eq("status", "ativo")
+  ]);
+
+  document.getElementById("stat-plus").textContent = plus.count ?? "—";
+  document.getElementById("stat-amigas").textContent = amigas.count ?? "—";
+  document.getElementById("stat-vouchers").textContent = vouchersAtivos.count ?? "—";
+
+  // Vouchers vencendo nos próximos 7 dias
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const limite = new Date(hoje); limite.setDate(limite.getDate() + 7);
+  const venc = (vouchersAtivos.data || []).filter(v => {
+    const d = new Date(v.validade + "T00:00:00");
+    return d <= limite;
+  }).length;
+  document.getElementById("stat-vencendo").textContent = venc;
+}
+
+// =========================================================================
+// Pré-cadastros pendentes (read-only)
+// =========================================================================
+async function carregarPendentes() {
+  const { data, error } = await window.sb
+    .from("pre_cadastros")
+    .select("id, nome, telefone, servico_interesse, preferencia_data, opt_in_whatsapp, created_at, indicada_por_id")
+    .eq("convertido_em_visita", false)
+    .order("created_at", { ascending: false });
+
+  const lista = document.getElementById("lista-pendentes");
+  const vazio = document.getElementById("pendentes-vazio");
+  lista.innerHTML = "";
+
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  // Buscar nomes das indicadoras
+  const ids = [...new Set(data.map(p => p.indicada_por_id).filter(Boolean))];
+  let mapaIndic = {};
+  if (ids.length) {
+    const { data: indics } = await window.sb.from("clientes").select("id, nome").in("id", ids);
+    (indics || []).forEach(c => mapaIndic[c.id] = c.nome);
+  }
+
+  data.forEach(p => {
+    const indicadora = p.indicada_por_id ? (mapaIndic[p.indicada_por_id] || "—") : "Sem indicação";
+    const tempo = tempoDesde(p.created_at);
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(p.nome)}</h3>
+      <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(p.telefone)} · ${tempo}</p>
+      <p class="text-xs text-[#6B6B6B] mt-1">Indicada por <strong>${window.escapeHtml(indicadora)}</strong></p>
+      ${p.servico_interesse ? `<p class="text-xs text-[#6B6B6B] mt-0.5">Interesse: ${window.escapeHtml(p.servico_interesse)}</p>` : ""}
+      ${p.preferencia_data ? `<p class="text-xs text-[#6B6B6B] mt-0.5">Preferência: ${window.escapeHtml(p.preferencia_data)}</p>` : ""}
+      <p class="text-[10px] text-[#B08D57] mt-1">${p.opt_in_whatsapp ? "✓ aceita WhatsApp" : "✗ não aceita WhatsApp"}</p>
+    `;
+    lista.appendChild(card);
+  });
+}
+
+function tempoDesde(iso) {
+  const d = new Date(iso);
+  const diffH = Math.floor((Date.now() - d.getTime()) / 36e5);
+  if (diffH < 1) return "agora há pouco";
+  if (diffH < 24) return `há ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD === 1) return "ontem";
+  if (diffD < 7) return `há ${diffD} dias`;
+  return d.toLocaleDateString("pt-BR");
+}
+
+// =========================================================================
+// Vouchers ativos (read-only)
+// =========================================================================
+async function carregarVouchers() {
+  const { data, error } = await window.sb
+    .from("vouchers")
+    .select("id, tipo, validade, criado_em, cliente_id, clientes(id, nome, telefone)")
+    .eq("status", "ativo")
+    .order("validade", { ascending: true });
+
+  const lista = document.getElementById("lista-vouchers");
+  const vazio = document.getElementById("vouchers-vazio");
+  lista.innerHTML = "";
+
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  data.forEach(v => {
+    const validadeDate = new Date(v.validade + "T00:00:00");
+    const diasRest = Math.ceil((validadeDate - hoje) / (24 * 3600 * 1000));
+    const corClasse = diasRest <= 7 ? "text-red-600 font-medium" : diasRest <= 14 ? "text-orange-600" : "text-[#6B6B6B]";
+    const tipoNome = window.fmtTipoVoucher(v.tipo);
+    const cliente = v.clientes || {};
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(cliente.nome || "—")}</h3>
+      <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(cliente.telefone || "")}</p>
+      <p class="text-sm text-[#1F4E5C] mt-2">Voucher: <strong>${tipoNome}</strong></p>
+      <p class="text-xs ${corClasse} mt-1">Vence em ${window.fmtData(v.validade)} · ${diasRest} dia(s) restante(s)</p>
+    `;
+    lista.appendChild(card);
+  });
+}
+
+// =========================================================================
+// Tab clientes — busca read-only
+// =========================================================================
+const buscaInput = document.getElementById("busca-cliente");
+let buscaTimeout = null;
+buscaInput.addEventListener("input", () => {
+  clearTimeout(buscaTimeout);
+  buscaTimeout = setTimeout(() => buscarClientes(buscaInput.value.trim()), 250);
+});
+
+async function buscarClientes(termo) {
+  const lista = document.getElementById("lista-clientes");
+  const vazio = document.getElementById("clientes-vazio");
+
+  let query = window.sb.from("clientes")
+    .select("id, nome, telefone, status, visitas_count, virou_plus_em, criado_em, vouchers(id, tipo, validade, status)");
+  if (termo) {
+    query = query.or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`);
+  }
+  query = query.order("criado_em", { ascending: false }).limit(50);
+
+  const { data, error } = await query;
+
+  lista.innerHTML = "";
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+
+  data.forEach(c => {
+    const isPlus = c.status === "plus";
+    const ativos = (c.vouchers || []).filter(v => v.status === "ativo")
+      .sort((a, b) => new Date(a.validade) - new Date(b.validade));
+
+    let vouchersHtml = "";
+    if (ativos.length > 0) {
+      vouchersHtml = `
+        <div class="mt-3 pt-3 border-t border-[#F0EFEC] space-y-1.5">
+          <p class="text-xs uppercase tracking-widest text-[#B08D57] font-medium">Vouchers ativos</p>
+          ${ativos.map(v => {
+            const validadeDate = new Date(v.validade + "T00:00:00");
+            const dias = Math.ceil((validadeDate - hoje) / (24 * 3600 * 1000));
+            const corClasse = dias <= 7 ? "text-red-600" : dias <= 14 ? "text-orange-600" : "text-[#6B6B6B]";
+            return `
+              <p class="text-sm">
+                <span class="text-[#1F4E5C] font-medium">${window.fmtTipoVoucher(v.tipo)}</span>
+                <span class="${corClasse} text-xs ml-1">· vence ${window.fmtData(v.validade)} (${dias}d)</span>
+              </p>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex items-center gap-2 flex-wrap">
+        <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
+        <span class="badge ${isPlus ? "badge-plus" : "badge-amiga"}">${isPlus ? "Plus" : "amiga"}</span>
+      </div>
+      <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
+      <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) ${isPlus && c.virou_plus_em ? "· Plus desde " + window.fmtData(c.virou_plus_em) : ""}</p>
+      ${vouchersHtml}
+    `;
+    lista.appendChild(card);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
