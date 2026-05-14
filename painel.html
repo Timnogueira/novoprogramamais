@@ -141,6 +141,16 @@
         </label>
         <button type="submit" id="btn-manual" class="btn-gold w-full mt-3">Criar como Plus e gerar carteirinha</button>
       </form>
+
+      <div class="mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Importar lote de clientes Plus</h2>
+        <p class="text-sm text-[#6B6B6B]">Cole uma cliente por linha no formato <code class="bg-[#F0EFEC] px-1 rounded">Nome Completo;Telefone</code>. Telefone pode ter parênteses, traços ou DDI — o sistema normaliza.</p>
+      </div>
+      <form id="form-lote" class="bg-white p-5 rounded-2xl border border-[#EAEAEA] space-y-3 mb-10">
+        <textarea id="lote-texto" rows="8" placeholder="Maria Silva;(11) 99999-9999&#10;Joana Santos;11988888888&#10;Bia Pereira;+55 11 97777-7777" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;"></textarea>
+        <button type="submit" id="btn-lote" class="btn-primary w-full mt-3">Importar lote</button>
+      </form>
+
     </section>
 
   </main>
@@ -162,10 +172,33 @@ async function init() {
   const { data: { session } } = await window.sb.auth.getSession();
   if (session) {
     usuarioAuth = session.user;
-    mostrarApp();
+    const ok = await verificarPapel();
+    if (ok) mostrarApp();
   } else {
     mostrarLogin();
   }
+}
+
+// Se o usuário for marcado como 'assessoria' em app_roles, redireciona para /assessoria.
+// Se a tabela não existir ou o usuário não estiver nela, retorna true (= owner por default).
+async function verificarPapel() {
+  try {
+    const { data, error } = await window.sb
+      .from("app_roles")
+      .select("role")
+      .eq("user_id", usuarioAuth.id)
+      .maybeSingle();
+    if (!error && data && data.role === "assessoria") {
+      alert("Esta área é exclusiva do profissional. Você será redirecionada para a sua tela de consulta.");
+      await window.sb.auth.signOut();
+      window.location.href = "/assessoria";
+      return false;
+    }
+  } catch (e) {
+    // tabela ausente ou erro de leitura: assume owner para não quebrar fluxo existente
+    console.warn("verificarPapel: ignorando erro", e);
+  }
+  return true;
 }
 
 function mostrarLogin() {
@@ -206,7 +239,8 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
   }
 
   usuarioAuth = data.user;
-  mostrarApp();
+  const ok = await verificarPapel();
+  if (ok) mostrarApp();
 });
 
 // Logout
@@ -444,7 +478,7 @@ async function ativarPlus(clienteId, nome) {
   const carteirinhaUrl = `${window.location.origin}/carteirinha/${data.qr_token}`;
 
   const primeiroNome = cli.nome.split(" ")[0];
-  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
+  const msg = `Olá ${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
   const waLink = `https://wa.me/${telParaWaMe(cli.telefone)}?text=${encodeURIComponent(msg)}`;
 
   abrirModal(`
@@ -622,7 +656,7 @@ async function buscarClientes(termo) {
       const nome = btn.dataset.nome;
       const url = btn.dataset.url;
       const primeiroNome = nome.split(" ")[0];
-      const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
+      const msg = `Olá ${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
       const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
       window.open(waLink, "_blank");
     });
@@ -647,10 +681,11 @@ document.getElementById("form-manual").addEventListener("submit", async (e) => {
   const optin = document.getElementById("manual-optin").checked;
 
   // Cria o cliente direto como Plus (visitas_count=2 para passar na validação)
+  // Cria o cliente direto como Plus (visitas_count=2 para passar na validação)
   const { data: novo, error: errIns } = await window.sb.from("clientes").insert({
     nome,
     telefone: tel,
-    status: "amiga",  // será atualizado por ativar_cliente_plus
+    status: "amiga",
     visitas_count: 2,
     opt_in_whatsapp: optin,
     opt_in_data: optin ? new Date().toISOString() : null
@@ -672,7 +707,7 @@ document.getElementById("form-manual").addEventListener("submit", async (e) => {
 
   const carteirinhaUrl = `${window.location.origin}/carteirinha/${ativ.qr_token}`;
   const primeiroNome = nome.split(" ")[0];
-  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
+  const msg = `Olá ${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
   const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
 
   e.target.reset();
@@ -689,6 +724,106 @@ document.getElementById("form-manual").addEventListener("submit", async (e) => {
 
   btn.disabled = false; btn.textContent = "Criar como Plus e gerar carteirinha";
 });
+
+// =========================================================================
+// Importação em lote de clientes Plus
+// =========================================================================
+function normalizarTelefoneE164(tel) {
+  const d = tel.replace(/\D/g, "");
+  if (d.length < 10) return null;
+  if (d.startsWith("55") && d.length >= 12) return "+" + d;
+  return "+55" + d;
+}
+
+document.getElementById("form-lote").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("btn-lote");
+  const texto = document.getElementById("lote-texto").value.trim();
+  if (!texto) return;
+
+  btn.disabled = true; btn.textContent = "Importando...";
+
+  const linhas = texto.split("\n").map(l => l.trim()).filter(Boolean);
+  const clientes = [];
+  const erros = [];
+
+  linhas.forEach((linha, idx) => {
+    const partes = linha.split(";").map(s => s.trim());
+    if (partes.length < 2) {
+      erros.push(`Linha ${idx + 1}: faltou ";" separando nome e telefone — "${linha}"`);
+      return;
+    }
+    const [nome, tel] = partes;
+    if (!nome || !tel) {
+      erros.push(`Linha ${idx + 1}: nome ou telefone vazio — "${linha}"`);
+      return;
+    }
+    const telE164 = normalizarTelefoneE164(tel);
+    if (!telE164) {
+      erros.push(`Linha ${idx + 1}: telefone inválido — "${tel}"`);
+      return;
+    }
+    clientes.push({ nome, telefone: telE164, opt_in_whatsapp: false });
+  });
+
+  if (erros.length > 0) {
+    alert("Corrija os erros antes de importar:\n\n" + erros.join("\n"));
+    btn.disabled = false; btn.textContent = "Importar lote";
+    return;
+  }
+
+  if (clientes.length === 0) {
+    alert("Nenhuma cliente válida encontrada.");
+    btn.disabled = false; btn.textContent = "Importar lote";
+    return;
+  }
+
+  const { data, error } = await window.sb.rpc("cadastrar_plus_lote", { p_clientes: clientes });
+
+  if (error) {
+    alert("Erro do banco: " + error.message);
+    btn.disabled = false; btn.textContent = "Importar lote";
+    return;
+  }
+
+  const statusLabel = {
+    criada_plus: "✓ criada como Plus",
+    promovida_para_plus: "✓ promovida para Plus",
+    ja_era_plus: "• já era Plus"
+  };
+
+  const rows = (data || []).map(r => {
+    const url = `${window.location.origin}/carteirinha/${r.qr_token}`;
+    const tel = r.telefone.replace(/\D/g, "");
+    const primeiroNome = (r.nome || "").split(" ")[0];
+    const msg = `Olá ${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
+    const waLink = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+    return `
+      <div class="border border-[#EAEAEA] rounded-xl p-3 flex justify-between items-center gap-2">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-[#1F4E5C] font-medium">${window.escapeHtml(r.nome)}</p>
+          <p class="text-xs text-[#6B6B6B]">${statusLabel[r.status] || r.status}</p>
+        </div>
+        <a href="${waLink}" target="_blank" class="bg-[#25D366] text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap">Enviar</a>
+      </div>
+    `;
+  }).join("");
+
+  abrirModal(`
+    <h3 class="font-serif text-2xl text-[#1F4E5C] mb-3">Lote importado</h3>
+    <p class="text-sm text-[#6B6B6B] mb-4">${data.length} cliente(s) processada(s). Envie a carteirinha de cada uma pelos botões abaixo:</p>
+    <div class="space-y-2 max-h-96 overflow-y-auto">${rows}</div>
+  `);
+
+  document.getElementById("lote-texto").value = "";
+  btn.disabled = false; btn.textContent = "Importar lote";
+});
+
+// Style para textarea
+const _textareaStyle = document.createElement("style");
+_textareaStyle.textContent = `textarea { width: 100%; padding: 12px 14px; background: #fff; border: 1px solid #E5E5E5; border-radius: 12px; outline: none; resize: vertical; }
+textarea:focus { border-color: #B08D57; box-shadow: 0 0 0 3px rgba(176,141,87,.15); }`;
+document.head.appendChild(_textareaStyle);
 
 // Start
 init();
