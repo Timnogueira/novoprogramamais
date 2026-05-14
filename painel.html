@@ -460,11 +460,10 @@ async function ativarPlus(clienteId, nome) {
   const { data: cli } = await window.sb.from("clientes")
     .select("telefone, nome").eq("id", clienteId).single();
 
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/painel\.html$/, "");
-  const carteirinhaUrl = `${baseUrl}/carteirinha.html?t=${data.qr_token}`;
+  const carteirinhaUrl = `${window.location.origin}/carteirinha/${data.qr_token}`;
 
   const primeiroNome = cli.nome.split(" ")[0];
-  const msg = `Olá, ${primeiroNome}! Que alegria te receber pela segunda vez. A partir de hoje você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo. Aqui está sua carteirinha digital: ${carteirinhaUrl}`;
+  const msg = `Olá, ${primeiroNome}! Que alegria te receber pela segunda vez. A partir de hoje você faz parte do meu Clube Plus — toda vez que indicar uma amiga, você ganha um cuidado especial comigo.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}`;
   const waLink = `https://wa.me/${telParaWaMe(cli.telefone)}?text=${encodeURIComponent(msg)}`;
 
   abrirModal(`
@@ -516,7 +515,7 @@ async function buscarClientes(termo) {
   data.forEach(c => {
     const isPlus = c.status === "plus";
     const carteirinhaUrl = isPlus && c.qr_token
-      ? `${window.location.origin}${window.location.pathname.replace(/\/painel\.html$/, "")}/carteirinha.html?t=${c.qr_token}`
+      ? `${window.location.origin}/carteirinha/${c.qr_token}`
       : null;
     const card = document.createElement("article");
     card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
@@ -685,10 +684,9 @@ document.getElementById("form-manual").addEventListener("submit", async (e) => {
     return;
   }
 
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/painel\.html$/, "");
-  const carteirinhaUrl = `${baseUrl}/carteirinha.html?t=${ativ.qr_token}`;
+  const carteirinhaUrl = `${window.location.origin}/carteirinha/${ativ.qr_token}`;
   const primeiroNome = nome.split(" ")[0];
-  const msg = `Olá, ${primeiroNome}! Você agora faz parte do meu Clube Plus. Toda vez que indicar uma amiga e ela vier ao salão, você ganha um cuidado especial. Aqui está sua carteirinha: ${carteirinhaUrl}`;
+  const msg = `Olá, ${primeiroNome}! Você agora faz parte do meu Clube Plus. Toda vez que indicar uma amiga e ela vier ao salão, você ganha um cuidado especial.\n\nAqui está sua carteirinha:\n${carteirinhaUrl}`;
   const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
 
   e.target.reset();

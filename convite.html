@@ -132,8 +132,13 @@
 
 <script>
 (async function() {
+  // Lê o id da indicadora — aceita ?ref= ou caminho /cadastro/:ref
   const params = new URLSearchParams(window.location.search);
-  const indicadoraId = params.get("ref");
+  let indicadoraId = params.get("ref");
+  if (!indicadoraId) {
+    const pathMatch = window.location.pathname.match(/\/cadastro\/([^/?#]+)/);
+    if (pathMatch) indicadoraId = pathMatch[1];
+  }
 
   if (!indicadoraId) {
     document.getElementById("state-loading").classList.add("hidden");
