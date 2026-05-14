@@ -444,7 +444,7 @@ async function ativarPlus(clienteId, nome) {
   const carteirinhaUrl = `${window.location.origin}/carteirinha/${data.qr_token}`;
 
   const primeiroNome = cli.nome.split(" ")[0];
-  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
+  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
   const waLink = `https://wa.me/${telParaWaMe(cli.telefone)}?text=${encodeURIComponent(msg)}`;
 
   abrirModal(`
@@ -622,7 +622,7 @@ async function buscarClientes(termo) {
       const nome = btn.dataset.nome;
       const url = btn.dataset.url;
       const primeiroNome = nome.split(" ")[0];
-      const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
+      const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
       const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
       window.open(waLink, "_blank");
     });
@@ -672,7 +672,7 @@ document.getElementById("form-manual").addEventListener("submit", async (e) => {
 
   const carteirinhaUrl = `${window.location.origin}/carteirinha/${ativ.qr_token}`;
   const primeiroNome = nome.split(" ")[0];
-  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
+  const msg = `${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${carteirinhaUrl}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.\n\nMais uma vez obrigado pela confiança!\nFérnando Máximo`;
   const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
 
   e.target.reset();
