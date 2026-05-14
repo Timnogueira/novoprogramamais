@@ -1,9 +1,12 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
-    { "source": "/cadastro/:ref", "destination": "/convite.html?ref=:ref" },
-    { "source": "/carteirinha/:token", "destination": "/carteirinha.html?t=:token" },
-    { "source": "/painel", "destination": "/painel.html" }
+    {
+      "source": "/cadastro/:ref",
+      "destination": "/convite.html?ref=:ref"
+    },
+    {
+      "source": "/carteirinha/:token",
+      "destination": "/carteirinha.html?t=:token"
+    }
   ]
 }
