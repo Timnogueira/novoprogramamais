@@ -23,6 +23,10 @@
     .btn-primary { background: #1F4E5C; color: white; padding: 12px 20px; border-radius: 12px; font-weight: 500; transition: all .15s; }
     .btn-primary:hover { background: #173B45; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: white; color: #1F4E5C; padding: 8px 12px; border-radius: 10px; font-weight: 500; border: 1px solid #E5E5E5; transition: all .15s; font-size: 12px; display: inline-block; text-align: center; }
+    .btn-outline:hover { border-color: #B08D57; color: #B08D57; }
+    .btn-wa { background: #1F4E5C; color: white; padding: 8px 12px; border-radius: 10px; font-weight: 500; font-size: 12px; transition: all .15s; display: inline-block; text-align: center; }
+    .btn-wa:hover { background: #173B45; }
     .tab { padding: 10px 0; font-size: 14px; font-weight: 500; color: #6B6B6B; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s; }
     .tab.active { color: #1F4E5C; border-bottom-color: #B08D57; }
     .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
@@ -64,7 +68,6 @@
   <!-- APP -->
   <main id="state-app" class="hidden">
 
-    <!-- Header -->
     <header class="bg-white border-b border-[#EAEAEA] sticky top-0 z-10">
       <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
@@ -82,7 +85,6 @@
     <!-- Tab: visão geral -->
     <section id="tab-visao" class="tab-content max-w-3xl mx-auto px-4 py-6">
 
-      <!-- Stats -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
         <div class="stat-card">
           <p class="stat-val" id="stat-plus">—</p>
@@ -102,7 +104,6 @@
         </div>
       </div>
 
-      <!-- Pré-cadastros -->
       <div class="mb-6">
         <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Pré-cadastros aguardando</h2>
         <p class="text-sm text-[#6B6B6B]">Amigas indicadas que se cadastraram e ainda não vieram ao salão.</p>
@@ -110,7 +111,13 @@
       <div id="lista-pendentes" class="space-y-3"></div>
       <p id="pendentes-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-6">Nenhum pré-cadastro pendente.</p>
 
-      <!-- Vouchers -->
+      <div class="mt-10 mb-6">
+        <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Prontas para ativar como Plus</h2>
+        <p class="text-sm text-[#6B6B6B]">Amigas que já fizeram a segunda visita ou estão na fila de ativação.</p>
+      </div>
+      <div id="lista-ativar" class="space-y-3"></div>
+      <p id="ativar-vazio" class="hidden text-center text-sm text-[#6B6B6B] py-6">Ninguém pronta para ativar agora.</p>
+
       <div class="mt-10 mb-6">
         <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Vouchers ativos</h2>
         <p class="text-sm text-[#6B6B6B]">Em ordem de vencimento — os mais próximos aparecem primeiro.</p>
@@ -123,7 +130,7 @@
     <section id="tab-clientes" class="tab-content hidden max-w-3xl mx-auto px-4 py-6">
       <div class="mb-4">
         <h2 class="font-serif text-2xl text-[#1F4E5C] mb-1">Clientes</h2>
-        <p class="text-sm text-[#6B6B6B]">Busque por nome ou telefone.</p>
+        <p class="text-sm text-[#6B6B6B]">Busque por nome ou telefone. Você pode visualizar e reenviar a carteirinha das clientes Plus.</p>
       </div>
       <input type="text" id="busca-cliente" placeholder="Buscar..." class="mb-4" />
       <div id="lista-clientes" class="space-y-3"></div>
@@ -138,6 +145,8 @@
   </main>
 
 <script>
+function telParaWaMe(telE164) { return telE164.replace(/\D/g, ""); }
+
 async function init() {
   const { data: { session } } = await window.sb.auth.getSession();
   if (session) mostrarApp(); else mostrarLogin();
@@ -151,6 +160,7 @@ async function mostrarApp() {
   document.getElementById("state-app").classList.remove("hidden");
   carregarStats();
   carregarPendentes();
+  carregarAtivar();
   carregarVouchers();
 }
 
@@ -160,11 +170,9 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
   const erro = document.getElementById("login-erro");
   btn.disabled = true; btn.textContent = "Entrando...";
   erro.classList.add("hidden");
-
   const email = document.getElementById("login-email").value.trim();
   const senha = document.getElementById("login-senha").value;
   const { error } = await window.sb.auth.signInWithPassword({ email, password: senha });
-
   if (error) {
     erro.textContent = "E-mail ou senha incorretos.";
     erro.classList.remove("hidden");
@@ -193,21 +201,15 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
-// =========================================================================
-// Stats
-// =========================================================================
 async function carregarStats() {
   const [plus, amigas, vouchersAtivos] = await Promise.all([
     window.sb.from("clientes").select("id", { count: "exact", head: true }).eq("status", "plus"),
     window.sb.from("clientes").select("id", { count: "exact", head: true }).eq("status", "amiga"),
     window.sb.from("vouchers").select("validade", { count: "exact" }).eq("status", "ativo")
   ]);
-
   document.getElementById("stat-plus").textContent = plus.count ?? "—";
   document.getElementById("stat-amigas").textContent = amigas.count ?? "—";
   document.getElementById("stat-vouchers").textContent = vouchersAtivos.count ?? "—";
-
-  // Vouchers vencendo nos próximos 7 dias
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const limite = new Date(hoje); limite.setDate(limite.getDate() + 7);
   const venc = (vouchersAtivos.data || []).filter(v => {
@@ -218,7 +220,7 @@ async function carregarStats() {
 }
 
 // =========================================================================
-// Pré-cadastros pendentes (read-only)
+// Pré-cadastros pendentes (consulta pura)
 // =========================================================================
 async function carregarPendentes() {
   const { data, error } = await window.sb
@@ -230,12 +232,10 @@ async function carregarPendentes() {
   const lista = document.getElementById("lista-pendentes");
   const vazio = document.getElementById("pendentes-vazio");
   lista.innerHTML = "";
-
   if (error) { console.error(error); return; }
   if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
   vazio.classList.add("hidden");
 
-  // Buscar nomes das indicadoras
   const ids = [...new Set(data.map(p => p.indicada_por_id).filter(Boolean))];
   let mapaIndic = {};
   if (ids.length) {
@@ -272,7 +272,40 @@ function tempoDesde(iso) {
 }
 
 // =========================================================================
-// Vouchers ativos (read-only)
+// Prontas para ativar (consulta pura)
+// =========================================================================
+async function carregarAtivar() {
+  const { data, error } = await window.sb
+    .from("clientes")
+    .select("id, nome, telefone, visitas_count, criado_em")
+    .eq("status", "amiga")
+    .gte("visitas_count", 1)
+    .order("visitas_count", { ascending: false });
+
+  const lista = document.getElementById("lista-ativar");
+  const vazio = document.getElementById("ativar-vazio");
+  lista.innerHTML = "";
+  if (error) { console.error(error); return; }
+  if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
+  vazio.classList.add("hidden");
+
+  data.forEach(c => {
+    const card = document.createElement("article");
+    card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
+    card.innerHTML = `
+      <div class="flex items-center gap-2">
+        <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
+        <span class="badge badge-amiga">amiga</span>
+      </div>
+      <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
+      <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) confirmada(s)</p>
+    `;
+    lista.appendChild(card);
+  });
+}
+
+// =========================================================================
+// Vouchers ativos (consulta pura)
 // =========================================================================
 async function carregarVouchers() {
   const { data, error } = await window.sb
@@ -284,7 +317,6 @@ async function carregarVouchers() {
   const lista = document.getElementById("lista-vouchers");
   const vazio = document.getElementById("vouchers-vazio");
   lista.innerHTML = "";
-
   if (error) { console.error(error); return; }
   if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
   vazio.classList.add("hidden");
@@ -309,7 +341,7 @@ async function carregarVouchers() {
 }
 
 // =========================================================================
-// Tab clientes — busca read-only
+// Tab clientes — Ver + Enviar carteirinha (Plus) | só leitura (amiga)
 // =========================================================================
 const buscaInput = document.getElementById("busca-cliente");
 let buscaTimeout = null;
@@ -323,14 +355,13 @@ async function buscarClientes(termo) {
   const vazio = document.getElementById("clientes-vazio");
 
   let query = window.sb.from("clientes")
-    .select("id, nome, telefone, status, visitas_count, virou_plus_em, criado_em, vouchers(id, tipo, validade, status)");
+    .select("id, nome, telefone, status, visitas_count, qr_token, virou_plus_em, criado_em, vouchers(id, tipo, validade, status)");
   if (termo) {
     query = query.or(`nome.ilike.%${termo}%,telefone.ilike.%${termo}%`);
   }
   query = query.order("criado_em", { ascending: false }).limit(50);
 
   const { data, error } = await query;
-
   lista.innerHTML = "";
   if (error) { console.error(error); return; }
   if (!data || data.length === 0) { vazio.classList.remove("hidden"); return; }
@@ -340,6 +371,7 @@ async function buscarClientes(termo) {
 
   data.forEach(c => {
     const isPlus = c.status === "plus";
+    const carteirinhaUrl = isPlus && c.qr_token ? `${window.location.origin}/carteirinha/${c.qr_token}` : null;
     const ativos = (c.vouchers || []).filter(v => v.status === "ativo")
       .sort((a, b) => new Date(a.validade) - new Date(b.validade));
 
@@ -366,15 +398,37 @@ async function buscarClientes(termo) {
     const card = document.createElement("article");
     card.className = "bg-white rounded-2xl border border-[#EAEAEA] p-4 fade-in";
     card.innerHTML = `
-      <div class="flex items-center gap-2 flex-wrap">
-        <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
-        <span class="badge ${isPlus ? "badge-plus" : "badge-amiga"}">${isPlus ? "Plus" : "amiga"}</span>
+      <div class="flex justify-between items-start gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="font-serif text-lg text-[#1F4E5C]">${window.escapeHtml(c.nome)}</h3>
+            <span class="badge ${isPlus ? "badge-plus" : "badge-amiga"}">${isPlus ? "Plus" : "amiga"}</span>
+          </div>
+          <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
+          <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) ${isPlus && c.virou_plus_em ? "· Plus desde " + window.fmtData(c.virou_plus_em) : ""}</p>
+        </div>
+        ${carteirinhaUrl ? `
+          <div class="flex flex-col gap-2 items-stretch">
+            <a href="${carteirinhaUrl}" target="_blank" class="btn-outline whitespace-nowrap">Ver carteirinha</a>
+            <button data-enviar="${c.id}" data-tel="${window.escapeHtml(c.telefone)}" data-nome="${window.escapeHtml(c.nome)}" data-url="${carteirinhaUrl}" class="btn-wa whitespace-nowrap">Enviar carteirinha</button>
+          </div>
+        ` : ""}
       </div>
-      <p class="text-sm text-[#6B6B6B] mt-0.5">${window.escapeHtml(c.telefone)}</p>
-      <p class="text-xs text-[#6B6B6B] mt-1">${c.visitas_count} visita(s) ${isPlus && c.virou_plus_em ? "· Plus desde " + window.fmtData(c.virou_plus_em) : ""}</p>
       ${vouchersHtml}
     `;
     lista.appendChild(card);
+  });
+
+  lista.querySelectorAll("[data-enviar]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tel = btn.dataset.tel;
+      const nome = btn.dataset.nome;
+      const url = btn.dataset.url;
+      const primeiroNome = nome.split(" ")[0];
+      const msg = `Olá ${primeiroNome}, tudo bem? Seja bem vinda.\n\nQuero te apresentar o Clube Plus, o meu jeito de retribuir a confiança das clientes que me indicam para suas amigas. Funciona assim: a cada indicação que vier ao salão, você ganha um voucher. Hidratação na primeira indicação, reconstrução na segunda, corte na terceira e maquiagem na quarta. Depois o ciclo recomeça, sempre.\n\nAqui está sua carteirinha digital:\n${url}\n\nNela você acompanha a partir de hoje suas indicadas, os vouchers ativos e tem também um botão pra convidar uma amiga nova, que terá uma condição especial na primeira visita dela.`;
+      const waLink = `https://wa.me/${telParaWaMe(tel)}?text=${encodeURIComponent(msg)}`;
+      window.open(waLink, "_blank");
+    });
   });
 }
 
