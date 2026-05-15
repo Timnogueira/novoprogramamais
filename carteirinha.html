@@ -107,7 +107,7 @@
     </section>
 
     <!-- Compartilhar -->
-    <section class="mx-6 mt-8 mb-12 fade-in">
+    <section id="secao-compartilhar" class="mx-6 mt-8 mb-12 fade-in hidden">
       <button id="btn-compartilhar"
               class="w-full bg-[#1F4E5C] hover:bg-[#173B45] text-white font-medium py-4 rounded-2xl shadow-sm transition active:scale-[0.98]">
         Indicar uma amiga
@@ -133,6 +133,24 @@ function mostrarErro(detalhe) {
     const p = document.querySelector("#state-error p");
     if (p) p.textContent = "Detalhe: " + detalhe;
   }
+}
+
+// Retorna true se quem está vendo esta carteirinha é uma assessoria logada.
+// Cliente comum (sem login) ou owner (sem papel definido) retornam false.
+async function detectarAssessoria() {
+  try {
+    const { data: { session } } = await window.sb.auth.getSession();
+    if (!session) return false;
+    const { data, error } = await window.sb
+      .from("app_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (!error && data && data.role === "assessoria") return true;
+  } catch (e) {
+    console.warn("detectarAssessoria: ignorando erro", e);
+  }
+  return false;
 }
 
 (async function() {
@@ -281,6 +299,14 @@ function mostrarErro(detalhe) {
       }
     }
   });
+
+    // Esconde a seção "Indicar uma amiga" quando quem está vendo a carteirinha
+    // é uma assessoria logada (ela vê a carteirinha para consulta, não para indicar).
+    // Cliente comum (sem login) e owner continuam vendo o botão normalmente.
+    const ehAssessoria = await detectarAssessoria();
+    if (!ehAssessoria) {
+      document.getElementById("secao-compartilhar").classList.remove("hidden");
+    }
 
     // Reveal
     document.getElementById("state-loading").classList.add("hidden");
