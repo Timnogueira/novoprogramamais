@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0A0A0A" />
+  <title>Férnando Máximo · Cabeleireiro & Maquiador · Jardim Paulistano</title>
+  <meta name="description" content="Férnando Máximo — cabeleireiro e maquiador no salão Âme Concept, Jardim Paulistano, São Paulo. Corte, coloração, hidratação, reconstrução capilar e maquiagem." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0A0A0A',
+            inkSoft: '#131313',
+            inkCard: '#1A1A1A',
+            border: '#2A2A2A',
+            cream: '#F0EAD6',
+            gold: '#B08D57',
+            goldLight: '#D9C29A',
+            muted: '#8B8B8B'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0A0A0A;
+      color: #F0F0F0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-serif { font-family: 'Playfair Display', serif; }
+    .photo-placeholder {
+      background:
+        linear-gradient(135deg, rgba(176,141,87,0.08) 0%, rgba(176,141,87,0.02) 100%),
+        linear-gradient(180deg, #1A1A1A 0%, #131313 100%);
+      border: 1px solid #2A2A2A;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-placeholder::before {
+      content: 'Foto · alta resolução';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #555;
+    }
+    .photo-placeholder::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(176,141,87,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .nav-blur {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(10, 10, 10, 0.75);
+    }
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease-out forwards;
+    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-500 { animation-delay: 0.5s; }
+    .btn-gold {
+      background: #B08D57;
+      color: #0A0A0A;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-gold:hover { background: #D9C29A; transform: translateY(-1px); }
+    .btn-outline-gold {
+      border: 1px solid #B08D57;
+      color: #B08D57;
+      padding: 13px 27px;
+      border-radius: 999px;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-outline-gold:hover { background: rgba(176,141,87,0.1); }
+    .section-eyebrow {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: #B08D57;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #B08D57, transparent);
+      margin: 24px auto;
+    }
+    .service-card {
+      background: #131313;
+      border: 1px solid #2A2A2A;
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: all .25s ease;
+    }
+    .service-card:hover {
+      border-color: #B08D57;
+      background: #1A1A1A;
+    }
+    .service-card h3 { font-family: 'Playfair Display', serif; }
+    .nav-link {
+      color: #B8B8B8;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      transition: color .15s;
+    }
+    .nav-link:hover { color: #B08D57; }
+    .fab-whatsapp {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #25D366;
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transition: all .2s ease;
+      z-index: 50;
+    }
+    .fab-whatsapp:hover { background: #1FAD52; transform: scale(1.05); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 nav-blur z-40 border-b border-border/40">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#topo" class="font-serif text-xl tracking-wide">
+        Férnando <span class="text-gold">Máximo</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#sobre" class="nav-link">Sobre</a>
+        <a href="#servicos" class="nav-link">Serviços</a>
+        <a href="#salao" class="nav-link">O salão</a>
+        <a href="#trabalhos" class="nav-link">Trabalhos</a>
+        <a id="cta-nav" href="#" class="btn-gold">Agendar</a>
+      </div>
+      <a id="cta-nav-mobile" href="#" class="md:hidden text-xs uppercase tracking-widest text-gold border border-gold/60 px-4 py-2 rounded-full">Agendar</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="topo" class="min-h-screen flex items-center pt-32 pb-16 px-6 relative">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center w-full">
+      <div class="fade-up">
+        <p class="section-eyebrow">Cabeleireiro & Maquiador</p>
+        <h1 class="font-serif text-5xl md:text-7xl leading-[0.95] mt-4 mb-6 fade-up delay-100">
+          A beleza,<br/>
+          em <span class="italic text-gold">cada detalhe</span>.
+        </h1>
+        <p class="text-lg text-muted max-w-md leading-relaxed mb-8 fade-up delay-200">
+          Atendimento autoral em cabelo e maquiagem no Jardim Paulistano. Técnica precisa, cuidado pessoal, resultado que dura.
+        </p>
+        <div class="flex flex-wrap gap-3 fade-up delay-300">
+          <a id="cta-hero" href="#" class="btn-gold">
+            Agendar pelo WhatsApp
+            <span aria-hidden="true">→</span>
+          </a>
+          <a href="#servicos" class="btn-outline-gold">Ver serviços</a>
+        </div>
+      </div>
+      <div class="photo-placeholder rounded-2xl aspect-[4/5] fade-up delay-500"></div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre" class="py-24 px-6 bg-inkSoft">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-5 gap-12 md:gap-16 items-center">
+      <div class="md:col-span-2 photo-placeholder rounded-2xl aspect-[4/5]"></div>
+      <div class="md:col-span-3">
+        <p class="section-eyebrow">O profissional</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 mb-6 leading-tight">
+          Cuidado autoral, técnica e escuta.
+        </h2>
+        <div class="space-y-4 text-muted leading-relaxed">
+          <p>
+            Férnando Máximo é cabeleireiro e maquiador formado em técnicas contemporâneas de corte, coloração e cuidado capilar. Trabalha há anos no Jardim Paulistano, atendendo clientes que buscam não só um serviço de qualidade, mas uma relação de confiança e continuidade.
+          </p>
+          <p>
+            Cada atendimento começa com uma conversa: entender o estilo de vida, a rotina, as preferências e o que a cliente busca. O resultado nasce dessa escuta — não de fórmulas prontas.
+          </p>
+          <p>
+            Especialista em técnicas de hidratação profunda, reconstrução capilar, cortes autorais e maquiagem para o dia a dia e ocasiões especiais.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section id="servicos" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="section-eyebrow">Serviços</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">
+          O que ofereço
+        </h2>
+        <div class="divider"></div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-5">
+        <!-- Noivas — card em destaque, ocupa a primeira linha inteira -->
+        <div class="service-card md:col-span-2 relative overflow-hidden" style="background: linear-gradient(135deg, #1A1A1A 0%, #131313 100%); border-color: #B08D57;">
+          <div class="absolute top-0 right-0 px-4 py-1.5 text-[10px] uppercase tracking-widest text-ink bg-gold rounded-bl-2xl">Atendimento especial</div>
+          <h3 class="text-3xl md:text-4xl mb-3 text-cream">Noivas</h3>
+          <p class="text-muted text-sm md:text-base leading-relaxed max-w-2xl">
+            Cabelo, maquiagem e o cuidado do começo ao fim do dia mais importante. Inclui consulta prévia, ensaio de maquiagem e penteado, e o atendimento dedicado no dia do evento — para você chegar pronta e tranquila.
+          </p>
+        </div>
+        <div class="service-card">
+          <h3 class="text-2xl mb-3 text-cream">Coloração</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Coloração técnica, mechas, iluminados e correção de cor. Produtos premium, abordagem personalizada para cada fio.
+          </p>
+        </div>
+        <div class="service-card">
+          <h3 class="text-2xl mb-3 text-cream">Tratamentos</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Hidratação profunda e reconstrução capilar para devolver brilho, força e maciez. Cuidado contínuo, fio por fio.
+          </p>
+        </div>
+        <div class="service-card">
+          <h3 class="text-2xl mb-3 text-cream">Maquiagem</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Maquiagem para o dia a dia, eventos e ensaios. Acabamento natural, sob medida e duradouro.
+          </p>
+        </div>
+        <div class="service-card">
+          <h3 class="text-2xl mb-3 text-cream">Penteado</h3>
+          <p class="text-muted text-sm leading-relaxed">
+            Penteados para ocasiões especiais, com acabamento sob medida para o seu look e o seu evento.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SALÃO -->
+  <section id="salao" class="py-24 px-6 bg-inkSoft">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <div>
+        <p class="section-eyebrow">Onde atendo</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 mb-6 leading-tight">
+          Âme Concept,<br/>
+          Jardim Paulistano.
+        </h2>
+        <div class="space-y-4 text-muted leading-relaxed mb-8">
+          <p>
+            Um espaço pensado para o tempo do cuidado: silencioso, claro, acolhedor. O Âme Concept é um conceito de beleza que valoriza a experiência completa — do café ao acabamento final.
+          </p>
+          <p>
+            Localizado em uma das regiões mais charmosas da cidade, com fácil acesso e estacionamento próximo.
+          </p>
+        </div>
+        <div class="space-y-2 text-sm">
+          <p class="text-cream font-medium">Âme Concept</p>
+          <p class="text-muted">Jardim Paulistano · São Paulo / SP</p>
+          <a href="https://www.google.com/maps/search/Âme+Concept+Jardim+Paulistano+São+Paulo" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-gold hover:text-goldLight text-sm mt-3">
+            Ver no Google Maps →
+          </a>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="photo-placeholder rounded-2xl aspect-[3/4]"></div>
+        <div class="space-y-3">
+          <div class="photo-placeholder rounded-2xl aspect-square"></div>
+          <div class="photo-placeholder rounded-2xl aspect-square"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRABALHOS -->
+  <section id="trabalhos" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="section-eyebrow">Trabalhos</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">
+          Alguns resultados
+        </h2>
+        <div class="divider"></div>
+        <p class="text-muted text-sm max-w-md mx-auto mt-4">
+          Uma seleção de cortes, colorações e maquiagens recentes.
+        </p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
+      </div>
+      <div class="text-center mt-12">
+        <a id="cta-trabalhos" href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="btn-outline-gold">
+          Acompanhe no Instagram
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENDAR -->
+  <section id="agendar" class="py-24 px-6 bg-inkSoft border-t border-border/40">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="section-eyebrow">Agendar</p>
+      <h2 class="font-serif text-4xl md:text-5xl mt-4 mb-6 leading-tight">
+        Vamos cuidar do seu próximo encontro.
+      </h2>
+      <p class="text-muted leading-relaxed mb-10 max-w-xl mx-auto">
+        Atendimento sob horário marcado. A assessoria do Férnando confere a agenda e organiza o melhor dia e horário para você.
+      </p>
+      <a id="cta-agendar" href="#" class="btn-gold">
+        Agendar pelo WhatsApp
+        <span aria-hidden="true">→</span>
+      </a>
+      <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm">
+        <a href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="text-muted hover:text-gold transition">
+          Instagram: @fernand0maximo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 px-6 border-t border-border/40">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="font-serif text-2xl mb-2">Férnando <span class="text-gold">Máximo</span></p>
+      <p class="text-xs uppercase tracking-widest text-muted mb-6">Cabeleireiro & Maquiador · Âme Concept · Jardim Paulistano · SP</p>
+      <div class="text-xs text-muted">
+        © <span id="ano"></span> · Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <!-- FAB WhatsApp (mobile especialmente) -->
+  <a id="fab-whatsapp" href="#" target="_blank" rel="noopener" class="fab-whatsapp md:hidden" aria-label="Agendar pelo WhatsApp">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 2.5 1 3.1.8 3.7.8.6-.1 1.8-.7 2-1.5.2-.7.2-1.4.2-1.5-.1-.2-.3-.2-.5-.3z"/>
+      <path d="M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3.1 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.8-1.3-1.3-2.9-1.3-4.4 0-4.4 3.6-8 8-8s8 3.6 8 8c-.1 4.4-3.7 8-8 8z"/>
+    </svg>
+  </a>
+
+<script>
+(function() {
+  const WHATSAPP_NUM = "5511913239335";
+  const MSG = "Olá! Vim pelo site, gostaria de agendar um atendimento com o Férnando.";
+  const link = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(MSG)}`;
+  const ids = ["cta-nav", "cta-nav-mobile", "cta-hero", "cta-agendar", "fab-whatsapp"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.href = link;
+      el.target = "_blank";
+      el.rel = "noopener";
+    }
+  });
+  document.getElementById("ano").textContent = new Date().getFullYear();
+})();
+</script>
+
+</body>
+</html>
