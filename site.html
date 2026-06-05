@@ -173,7 +173,6 @@
       </a>
       <div class="hidden md:flex items-center gap-8">
         <a href="#sobre" class="nav-link">Sobre</a>
-        <a href="#movimento" class="nav-link">Em movimento</a>
         <a href="#servicos" class="nav-link">Serviços</a>
         <a href="#salao" class="nav-link">O salão</a>
         <a href="#trabalhos" class="nav-link">Trabalhos</a>
@@ -231,31 +230,6 @@
             Especialista em técnicas de hidratação profunda, reconstrução capilar, cortes autorais e maquiagem para o dia a dia e ocasiões especiais.
           </p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- EM MOVIMENTO -->
-  <section id="movimento" class="py-24 px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-12">
-        <p class="section-eyebrow">Em movimento</p>
-        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">
-          O atendimento em vídeo
-        </h2>
-        <div class="divider"></div>
-      </div>
-      <div class="rounded-2xl overflow-hidden bg-inkCard aspect-video relative group cursor-pointer" id="video-landscape-wrap">
-        <video id="video-landscape" preload="metadata" playsinline poster="/videos/landscape-poster.jpg" class="w-full h-full object-cover">
-          <source src="/videos/landscape.mp4" type="video/mp4">
-        </video>
-        <button type="button" id="video-landscape-play" class="absolute inset-0 flex items-center justify-center bg-black/30 transition group-hover:bg-black/40">
-          <span class="w-20 h-20 rounded-full bg-gold/95 flex items-center justify-center shadow-2xl">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="#0A0A0A" aria-hidden="true">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </span>
-        </button>
       </div>
     </div>
   </section>
@@ -439,21 +413,6 @@
     }
   });
   document.getElementById("ano").textContent = new Date().getFullYear();
-
-  // Vídeo landscape: clique para tocar
-  const vid = document.getElementById("video-landscape");
-  const btn = document.getElementById("video-landscape-play");
-  if (vid && btn) {
-    btn.addEventListener("click", () => {
-      btn.style.display = "none";
-      vid.controls = true;
-      vid.play().catch(() => {});
-    });
-    vid.addEventListener("ended", () => {
-      btn.style.display = "flex";
-      vid.controls = false;
-    });
-  }
 })();
 </script>
 
