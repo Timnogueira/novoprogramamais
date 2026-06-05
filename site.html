@@ -173,6 +173,7 @@
       </a>
       <div class="hidden md:flex items-center gap-8">
         <a href="#sobre" class="nav-link">Sobre</a>
+        <a href="#movimento" class="nav-link">Em movimento</a>
         <a href="#servicos" class="nav-link">Serviços</a>
         <a href="#salao" class="nav-link">O salão</a>
         <a href="#trabalhos" class="nav-link">Trabalhos</a>
@@ -203,7 +204,7 @@
         </div>
       </div>
       <div class="rounded-2xl aspect-[4/5] fade-up delay-500 overflow-hidden bg-inkCard">
-        <img src="/fotos/hero-perfil.jpg" alt="Trabalho de maquiagem e penteado" class="w-full h-full object-cover" loading="eager" />
+        <img src="/fotos/IMG_0289.jpg" alt="Trabalho de maquiagem e penteado" class="w-full h-full object-cover" loading="eager" />
       </div>
     </div>
   </section>
@@ -212,7 +213,7 @@
   <section id="sobre" class="py-24 px-6 bg-inkSoft">
     <div class="max-w-6xl mx-auto grid md:grid-cols-5 gap-12 md:gap-16 items-center">
       <div class="md:col-span-2 rounded-2xl aspect-[4/5] overflow-hidden bg-inkCard">
-        <img src="/fotos/sobre-fernando.jpg" alt="Férnando Máximo com clientes" class="w-full h-full object-cover" loading="lazy" />
+        <img src="/fotos/IMG_FERNANDO.jpg" alt="Férnando Máximo" class="w-full h-full object-cover" style="object-position: 65% center;" loading="lazy" />
       </div>
       <div class="md:col-span-3">
         <p class="section-eyebrow">O profissional</p>
@@ -230,6 +231,31 @@
             Especialista em técnicas de hidratação profunda, reconstrução capilar, cortes autorais e maquiagem para o dia a dia e ocasiões especiais.
           </p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EM MOVIMENTO -->
+  <section id="movimento" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <p class="section-eyebrow">Em movimento</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">
+          O atendimento em vídeo
+        </h2>
+        <div class="divider"></div>
+      </div>
+      <div class="rounded-2xl overflow-hidden bg-inkCard aspect-video relative group cursor-pointer" id="video-landscape-wrap">
+        <video id="video-landscape" preload="metadata" playsinline poster="/videos/landscape-poster.jpg" class="w-full h-full object-cover">
+          <source src="/videos/landscape.mp4" type="video/mp4">
+        </video>
+        <button type="button" id="video-landscape-play" class="absolute inset-0 flex items-center justify-center bg-black/30 transition group-hover:bg-black/40">
+          <span class="w-20 h-20 rounded-full bg-gold/95 flex items-center justify-center shadow-2xl">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#0A0A0A" aria-hidden="true">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </span>
+        </button>
       </div>
     </div>
   </section>
@@ -309,7 +335,9 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="photo-placeholder rounded-2xl aspect-[3/4]"></div>
         <div class="space-y-3">
-          <div class="photo-placeholder rounded-2xl aspect-square"></div>
+          <div class="rounded-2xl aspect-square overflow-hidden bg-inkCard">
+            <img src="/fotos/IMG_69172.jpg" alt="Férnando com clientes" class="w-full h-full object-cover" loading="lazy" />
+          </div>
           <div class="photo-placeholder rounded-2xl aspect-square"></div>
         </div>
       </div>
@@ -331,12 +359,17 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         <div class="rounded-2xl aspect-[4/5] overflow-hidden bg-inkCard">
-          <img src="/fotos/trabalho-noiva.jpg" alt="Noiva" class="w-full h-full object-cover" loading="lazy" />
+          <img src="/fotos/IMG_1601.jpg" alt="Noiva" class="w-full h-full object-cover" loading="lazy" />
+        </div>
+        <div class="rounded-2xl aspect-[4/5] overflow-hidden bg-inkCard relative">
+          <video autoplay muted loop playsinline preload="metadata" poster="/videos/vertical-poster.jpg" class="w-full h-full object-cover">
+            <source src="/videos/vertical.mp4" type="video/mp4">
+          </video>
+          <span class="absolute bottom-2 right-2 text-[10px] uppercase tracking-widest text-white/90 bg-black/40 px-2 py-1 rounded">vídeo</span>
         </div>
         <div class="rounded-2xl aspect-[4/5] overflow-hidden bg-inkCard">
-          <img src="/fotos/trabalho-makeup.jpg" alt="Maquiagem" class="w-full h-full object-cover" loading="lazy" />
+          <img src="/fotos/IMG_0281.jpg" alt="Maquiagem" class="w-full h-full object-cover" loading="lazy" />
         </div>
-        <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
         <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
         <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
         <div class="photo-placeholder rounded-2xl aspect-[4/5]"></div>
@@ -406,6 +439,21 @@
     }
   });
   document.getElementById("ano").textContent = new Date().getFullYear();
+
+  // Vídeo landscape: clique para tocar
+  const vid = document.getElementById("video-landscape");
+  const btn = document.getElementById("video-landscape-play");
+  if (vid && btn) {
+    btn.addEventListener("click", () => {
+      btn.style.display = "none";
+      vid.controls = true;
+      vid.play().catch(() => {});
+    });
+    vid.addEventListener("ended", () => {
+      btn.style.display = "flex";
+      vid.controls = false;
+    });
+  }
 })();
 </script>
 
