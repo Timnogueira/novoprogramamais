@@ -1,0 +1,17 @@
+COLOQUE NESTA PASTA OS SEGUINTES ARQUIVOS JPG
+(converta os .CR3 pra .jpg antes — Lightroom, Photoshop, DPP da Canon ou conversor online)
+
+Arquivos esperados pelo site.html:
+
+  IMG_0289.jpg       — mulher de perfil, blusa branca (HERO da página)
+  IMG_69172.jpg      — Férnando com duas clientes ao ar livre (Salão)
+  IMG_1601.jpg       — noiva com véu e buquê (Galeria Trabalhos)
+  IMG_0281.jpg       — mulher de olhos fechados, blusa branca (Galeria Trabalhos)
+  IMG_FERNANDO.jpg   — retrato dark de identificação dele (Sobre)
+                       *este é o que você converteu do IMG_9837.CR3*
+                       *me passe o nome original se preferir manter*
+
+Dicas ao exportar:
+  - JPEG qualidade 80-85
+  - Largura máxima 2000px (deixa arquivo entre 200 e 600 KB cada)
+  - Pode usar squoosh.app para comprimir rapidamente após exportar
