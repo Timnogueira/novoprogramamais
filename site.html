@@ -137,6 +137,77 @@
       background: #1A1A1A;
     }
     .service-card h3 { font-family: 'Playfair Display', serif; }
+    /* Serviços v2 — barra lateral + carrossel */
+    .service-item {
+      padding: 22px 24px;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      transition: all .25s ease;
+      border-radius: 0 12px 12px 0;
+    }
+    .service-item:hover, .service-item.active {
+      border-left-color: #B08D57;
+      background: linear-gradient(90deg, rgba(176,141,87,0.08), transparent 70%);
+    }
+    .service-item h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #F0EAD6;
+      margin-bottom: 6px;
+      transition: color .2s ease;
+    }
+    .service-item:hover h3, .service-item.active h3 { color: #B08D57; }
+    .service-item p { font-size: 13px; color: #8B8B8B; line-height: 1.6; }
+    .carousel-stage {
+      position: relative;
+      aspect-ratio: 4/5;
+      background: #131313;
+      border: 1px solid #2A2A2A;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .carousel-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+    .carousel-slide.active { opacity: 1; pointer-events: auto; }
+    .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .carousel-slide.placeholder {
+      background: linear-gradient(135deg, #1A1A1A 0%, #131313 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .carousel-slide.placeholder span {
+      font-family: 'Inter', sans-serif; font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase; color: #555;
+    }
+    .carousel-label {
+      position: absolute;
+      top: 16px; left: 16px;
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
+      color: #B08D57; background: rgba(10,10,10,0.55);
+      padding: 6px 14px; border-radius: 999px;
+      backdrop-filter: blur(6px);
+      z-index: 3;
+    }
+    .carousel-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px; border-radius: 999px;
+      background: rgba(10,10,10,0.5); color: #F0EAD6;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; transition: opacity .25s, background .15s;
+      z-index: 4; backdrop-filter: blur(6px);
+    }
+    .carousel-arrow:hover { background: rgba(176,141,87,0.95); color: #0A0A0A; }
+    .carousel-stage:hover .carousel-arrow { opacity: 1; }
+    .carousel-arrow.prev { left: 12px; }
+    .carousel-arrow.next { right: 12px; }
+    .carousel-dots {
+      position: absolute; bottom: 14px; left: 0; right: 0;
+      display: flex; justify-content: center; gap: 6px; z-index: 3;
+    }
+    .carousel-dots span {
+      width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,0.35);
+      transition: all .25s ease;
+    }
+    .carousel-dots span.active { background: #B08D57; width: 20px; }
     .nav-link {
       color: #B8B8B8;
       font-size: 13px;
@@ -244,38 +315,68 @@
         </h2>
         <div class="divider"></div>
       </div>
-      <div class="grid md:grid-cols-2 gap-5">
-        <!-- Noivas — card em destaque, ocupa a primeira linha inteira -->
-        <div class="service-card md:col-span-2 relative overflow-hidden" style="background: linear-gradient(135deg, #1A1A1A 0%, #131313 100%); border-color: #B08D57;">
-          <div class="absolute top-0 right-0 px-4 py-1.5 text-[10px] uppercase tracking-widest text-ink bg-gold rounded-bl-2xl">Atendimento especial</div>
-          <h3 class="text-3xl md:text-4xl mb-3 text-cream">Noivas</h3>
-          <p class="text-muted text-sm md:text-base leading-relaxed max-w-2xl">
-            Cabelo, maquiagem e o cuidado do começo ao fim do dia mais importante. Inclui consulta prévia, ensaio de maquiagem e penteado, e o atendimento dedicado no dia do evento — para você chegar pronta e tranquila.
-          </p>
+      <div class="grid lg:grid-cols-[1fr_1.4fr] gap-8 md:gap-12 items-start">
+        <!-- LADO ESQUERDO: lista de serviços -->
+        <div id="services-nav" class="space-y-1">
+          <div class="service-item active" data-service="noivas">
+            <h3>Noivas</h3>
+            <p>Cabelo, maquiagem e o cuidado do começo ao fim. Consulta prévia, ensaio e atendimento dedicado no dia do evento.</p>
+          </div>
+          <div class="service-item" data-service="coloracao">
+            <h3>Coloração</h3>
+            <p>Coloração técnica, mechas, iluminados e correção de cor. Produtos premium, abordagem personalizada para cada fio.</p>
+          </div>
+          <div class="service-item" data-service="tratamentos">
+            <h3>Tratamentos</h3>
+            <p>Hidratação profunda e reconstrução capilar para devolver brilho, força e maciez. Cuidado contínuo, fio por fio.</p>
+          </div>
+          <div class="service-item" data-service="maquiagem">
+            <h3>Maquiagem</h3>
+            <p>Maquiagem para o dia a dia, eventos e ensaios. Acabamento natural, sob medida e duradouro.</p>
+          </div>
+          <div class="service-item" data-service="penteado">
+            <h3>Penteado</h3>
+            <p>Penteados para ocasiões especiais, com acabamento sob medida para o seu look e o seu evento.</p>
+          </div>
         </div>
-        <div class="service-card">
-          <h3 class="text-2xl mb-3 text-cream">Coloração</h3>
-          <p class="text-muted text-sm leading-relaxed">
-            Coloração técnica, mechas, iluminados e correção de cor. Produtos premium, abordagem personalizada para cada fio.
-          </p>
-        </div>
-        <div class="service-card">
-          <h3 class="text-2xl mb-3 text-cream">Tratamentos</h3>
-          <p class="text-muted text-sm leading-relaxed">
-            Hidratação profunda e reconstrução capilar para devolver brilho, força e maciez. Cuidado contínuo, fio por fio.
-          </p>
-        </div>
-        <div class="service-card">
-          <h3 class="text-2xl mb-3 text-cream">Maquiagem</h3>
-          <p class="text-muted text-sm leading-relaxed">
-            Maquiagem para o dia a dia, eventos e ensaios. Acabamento natural, sob medida e duradouro.
-          </p>
-        </div>
-        <div class="service-card">
-          <h3 class="text-2xl mb-3 text-cream">Penteado</h3>
-          <p class="text-muted text-sm leading-relaxed">
-            Penteados para ocasiões especiais, com acabamento sob medida para o seu look e o seu evento.
-          </p>
+
+        <!-- LADO DIREITO: carrossel -->
+        <div class="carousel-stage" id="services-carousel">
+          <div class="carousel-label" id="carousel-label">Noivas</div>
+
+          <!-- Noivas -->
+          <div class="carousel-set" data-set="noivas">
+            <div class="carousel-slide placeholder active"><span>Foto Noivas · 1</span></div>
+            <div class="carousel-slide placeholder"><span>Foto Noivas · 2</span></div>
+          </div>
+          <!-- Coloração -->
+          <div class="carousel-set" data-set="coloracao" style="display:none">
+            <div class="carousel-slide placeholder active"><span>Foto Coloração · 1</span></div>
+            <div class="carousel-slide placeholder"><span>Foto Coloração · 2</span></div>
+          </div>
+          <!-- Tratamentos -->
+          <div class="carousel-set" data-set="tratamentos" style="display:none">
+            <div class="carousel-slide active"><img src="/fotos/IMG_2408.jpg" alt="Tratamento capilar" loading="lazy" /></div>
+            <div class="carousel-slide placeholder"><span>Foto Tratamentos · 2</span></div>
+          </div>
+          <!-- Maquiagem -->
+          <div class="carousel-set" data-set="maquiagem" style="display:none">
+            <div class="carousel-slide active"><img src="/fotos/IMG_9721.jpg" alt="Maquiagem 1" loading="lazy" /></div>
+            <div class="carousel-slide"><img src="/fotos/IMG_9723.jpg" alt="Maquiagem 2" loading="lazy" /></div>
+          </div>
+          <!-- Penteado -->
+          <div class="carousel-set" data-set="penteado" style="display:none">
+            <div class="carousel-slide placeholder active"><span>Foto Penteado · 1</span></div>
+            <div class="carousel-slide placeholder"><span>Foto Penteado · 2</span></div>
+          </div>
+
+          <button class="carousel-arrow prev" id="arrow-prev" aria-label="Anterior">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="carousel-arrow next" id="arrow-next" aria-label="Próximo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <div class="carousel-dots" id="carousel-dots"></div>
         </div>
       </div>
     </div>
@@ -311,105 +412,4 @@
           <img src="/fotos/IMG_2408.jpg" alt="Férnando penteando uma cliente" class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="space-y-3">
-          <div class="rounded-2xl aspect-square overflow-hidden bg-inkCard">
-            <img src="/fotos/IMG_5384.jpg" alt="Produtos Dior usados no atendimento" class="w-full h-full object-cover" loading="lazy" />
-          </div>
-          <div class="rounded-2xl aspect-square overflow-hidden bg-inkCard">
-            <img src="/fotos/IMG_5407.jpg" alt="Produtos Chanel usados no atendimento" class="w-full h-full object-cover" loading="lazy" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- TRABALHOS -->
-  <section id="trabalhos" class="py-24 px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <p class="section-eyebrow">Trabalhos</p>
-        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">
-          Alguns resultados
-        </h2>
-        <div class="divider"></div>
-        <p class="text-muted text-sm max-w-md mx-auto mt-4">
-          Uma seleção de cortes, colorações e maquiagens recentes.
-        </p>
-      </div>
-      <!-- Feed do Instagram via Behold -->
-      <behold-widget feed-id="29wWTCBvrqyB0iOJsXum"></behold-widget>
-      <script>
-        (() => {
-          const d=document,s=d.createElement("script");s.type="module";
-          s.src="https://w.behold.so/widget.js";d.head.append(s);
-        })();
-      </script>
-      <div class="text-center mt-12">
-        <a id="cta-trabalhos" href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="btn-outline-gold">
-          Acompanhe no Instagram
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- AGENDAR -->
-  <section id="agendar" class="py-24 px-6 bg-inkSoft border-t border-border/40">
-    <div class="max-w-3xl mx-auto text-center">
-      <p class="section-eyebrow">Agendar</p>
-      <h2 class="font-serif text-4xl md:text-5xl mt-4 mb-6 leading-tight">
-        Vamos cuidar do seu próximo encontro.
-      </h2>
-      <p class="text-muted leading-relaxed mb-10 max-w-xl mx-auto">
-        Atendimento sob horário marcado. A assessoria do Férnando confere a agenda e organiza o melhor dia e horário para você.
-      </p>
-      <a id="cta-agendar" href="#" class="btn-gold">
-        Agendar pelo WhatsApp
-        <span aria-hidden="true">→</span>
-      </a>
-      <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm">
-        <a href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="text-muted hover:text-gold transition">
-          Instagram: @fernand0maximo
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="py-12 px-6 border-t border-border/40">
-    <div class="max-w-6xl mx-auto text-center">
-      <p class="font-serif text-2xl mb-2">Férnando <span class="text-gold">Máximo</span></p>
-      <p class="text-xs uppercase tracking-widest text-muted mb-6">Cabeleireiro & Maquiador · Âme Concept · Jardim Paulistano · SP</p>
-      <div class="text-xs text-muted">
-        © <span id="ano"></span> · Todos os direitos reservados.
-      </div>
-    </div>
-  </footer>
-
-  <!-- FAB WhatsApp (mobile especialmente) -->
-  <a id="fab-whatsapp" href="#" target="_blank" rel="noopener" class="fab-whatsapp md:hidden" aria-label="Agendar pelo WhatsApp">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 2.5 1 3.1.8 3.7.8.6-.1 1.8-.7 2-1.5.2-.7.2-1.4.2-1.5-.1-.2-.3-.2-.5-.3z"/>
-      <path d="M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3.1 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.8-1.3-1.3-2.9-1.3-4.4 0-4.4 3.6-8 8-8s8 3.6 8 8c-.1 4.4-3.7 8-8 8z"/>
-    </svg>
-  </a>
-
-<script>
-(function() {
-  const WHATSAPP_NUM = "5511913239335";
-  const MSG = "Olá! Vim pelo site, gostaria de agendar um atendimento com o Férnando.";
-  const link = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(MSG)}`;
-  const ids = ["cta-nav", "cta-nav-mobile", "cta-hero", "cta-agendar", "fab-whatsapp"];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.href = link;
-      el.target = "_blank";
-      el.rel = "noopener";
-    }
-  });
-  document.getElementById("ano").textContent = new Date().getFullYear();
-})();
-</script>
-
-</body>
-</html>
+   
