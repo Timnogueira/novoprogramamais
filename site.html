@@ -137,17 +137,19 @@
       background: #1A1A1A;
     }
     .service-card h3 { font-family: 'Playfair Display', serif; }
-    /* Serviços v2 — barra lateral + carrossel */
+    /* Serviços v2 — barra lateral + carrossel (com molduras) */
     .service-item {
+      background: #131313;
+      border: 1px solid #2A2A2A;
+      border-radius: 16px;
       padding: 22px 24px;
-      border-left: 2px solid transparent;
       cursor: pointer;
       transition: all .25s ease;
-      border-radius: 0 12px 12px 0;
     }
     .service-item:hover, .service-item.active {
-      border-left-color: #B08D57;
-      background: linear-gradient(90deg, rgba(176,141,87,0.08), transparent 70%);
+      border-color: #B08D57;
+      background: #1A1A1A;
+      transform: translateX(2px);
     }
     .service-item h3 {
       font-family: 'Playfair Display', serif;
@@ -169,13 +171,14 @@
     .carousel-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .5s ease; pointer-events: none; }
     .carousel-slide.active { opacity: 1; pointer-events: auto; }
     .carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .carousel-slide.placeholder {
+    .carousel-slide.placeholder, .carousel-slide-fallback {
       background: linear-gradient(135deg, #1A1A1A 0%, #131313 100%);
       display: flex; align-items: center; justify-content: center;
+      width: 100%; height: 100%;
     }
-    .carousel-slide.placeholder span {
-      font-family: 'Inter', sans-serif; font-size: 10px;
-      letter-spacing: .2em; text-transform: uppercase; color: #555;
+    .carousel-slide.placeholder span, .carousel-slide-fallback span {
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      letter-spacing: .2em; text-transform: uppercase; color: #666;
     }
     .carousel-label {
       position: absolute;
@@ -317,7 +320,7 @@
       </div>
       <div class="grid lg:grid-cols-[1fr_1.4fr] gap-8 md:gap-12 items-start">
         <!-- LADO ESQUERDO: lista de serviços -->
-        <div id="services-nav" class="space-y-1">
+        <div id="services-nav" class="space-y-3">
           <div class="service-item active" data-service="noivas">
             <h3>Noivas</h3>
             <p>Cabelo, maquiagem e o cuidado do começo ao fim. Consulta prévia, ensaio e atendimento dedicado no dia do evento.</p>
@@ -346,28 +349,28 @@
 
           <!-- Noivas -->
           <div class="carousel-set" data-set="noivas">
-            <div class="carousel-slide placeholder active"><span>Foto Noivas · 1</span></div>
-            <div class="carousel-slide placeholder"><span>Foto Noivas · 2</span></div>
+            <div class="carousel-slide active"><img src="/fotos/Noiva1.jpg" alt="Noivas 1" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Noiva1.jpg</span></div>'" /></div>
+            <div class="carousel-slide"><img src="/fotos/Noiva2.jpg" alt="Noivas 2" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Noiva2.jpg</span></div>'" /></div>
           </div>
           <!-- Coloração -->
           <div class="carousel-set" data-set="coloracao" style="display:none">
-            <div class="carousel-slide placeholder active"><span>Foto Coloração · 1</span></div>
-            <div class="carousel-slide placeholder"><span>Foto Coloração · 2</span></div>
+            <div class="carousel-slide active"><img src="/fotos/Coloracao1.jpg" alt="Coloração 1" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Coloracao1.jpg</span></div>'" /></div>
+            <div class="carousel-slide"><img src="/fotos/Coloracao2.jpg" alt="Coloração 2" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Coloracao2.jpg</span></div>'" /></div>
           </div>
           <!-- Tratamentos -->
           <div class="carousel-set" data-set="tratamentos" style="display:none">
-            <div class="carousel-slide active"><img src="/fotos/IMG_2408.jpg" alt="Tratamento capilar" loading="lazy" /></div>
-            <div class="carousel-slide placeholder"><span>Foto Tratamentos · 2</span></div>
+            <div class="carousel-slide active"><img src="/fotos/Tratamento1.jpg" alt="Tratamentos 1" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Tratamento1.jpg</span></div>'" /></div>
+            <div class="carousel-slide"><img src="/fotos/Tratamento2.jpg" alt="Tratamentos 2" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Tratamento2.jpg</span></div>'" /></div>
           </div>
           <!-- Maquiagem -->
           <div class="carousel-set" data-set="maquiagem" style="display:none">
-            <div class="carousel-slide active"><img src="/fotos/IMG_9721.jpg" alt="Maquiagem 1" loading="lazy" /></div>
-            <div class="carousel-slide"><img src="/fotos/IMG_9723.jpg" alt="Maquiagem 2" loading="lazy" /></div>
+            <div class="carousel-slide active"><img src="/fotos/Maquiagem1.jpg" alt="Maquiagem 1" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Maquiagem1.jpg</span></div>'" /></div>
+            <div class="carousel-slide"><img src="/fotos/Maquiagem2.jpg" alt="Maquiagem 2" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Maquiagem2.jpg</span></div>'" /></div>
           </div>
           <!-- Penteado -->
           <div class="carousel-set" data-set="penteado" style="display:none">
-            <div class="carousel-slide placeholder active"><span>Foto Penteado · 1</span></div>
-            <div class="carousel-slide placeholder"><span>Foto Penteado · 2</span></div>
+            <div class="carousel-slide active"><img src="/fotos/Penteado1.jpg" alt="Penteado 1" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Penteado1.jpg</span></div>'" /></div>
+            <div class="carousel-slide"><img src="/fotos/Penteado2.jpg" alt="Penteado 2" loading="lazy" onerror="this.outerHTML='<div class=&quot;carousel-slide-fallback&quot;><span>Penteado2.jpg</span></div>'" /></div>
           </div>
 
           <button class="carousel-arrow prev" id="arrow-prev" aria-label="Anterior">
@@ -392,19 +395,13 @@
           Jardim Paulistano.
         </h2>
         <div class="space-y-4 text-muted leading-relaxed mb-8">
-          <p>
-            Um espaço pensado para o tempo do cuidado: silencioso, claro, acolhedor. O Âme Concept é um conceito de beleza que valoriza a experiência completa — do café ao acabamento final.
-          </p>
-          <p>
-            Localizado em uma das regiões mais charmosas da cidade, com fácil acesso e estacionamento próximo.
-          </p>
+          <p>Um espaço pensado para o tempo do cuidado: silencioso, claro, acolhedor. O Âme Concept é um conceito de beleza que valoriza a experiência completa — do café ao acabamento final.</p>
+          <p>Localizado em uma das regiões mais charmosas da cidade, com fácil acesso e estacionamento próximo.</p>
         </div>
         <div class="space-y-2 text-sm">
           <p class="text-cream font-medium">Âme Concept</p>
           <p class="text-muted">Jardim Paulistano · São Paulo / SP</p>
-          <a href="https://www.google.com/maps/search/Âme+Concept+Jardim+Paulistano+São+Paulo" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-gold hover:text-goldLight text-sm mt-3">
-            Ver no Google Maps →
-          </a>
+          <a href="https://www.google.com/maps/search/Âme+Concept+Jardim+Paulistano+São+Paulo" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-gold hover:text-goldLight text-sm mt-3">Ver no Google Maps →</a>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
@@ -412,4 +409,141 @@
           <img src="/fotos/IMG_2408.jpg" alt="Férnando penteando uma cliente" class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="space-y-3">
-   
+          <div class="rounded-2xl aspect-square overflow-hidden bg-inkCard"><img src="/fotos/IMG_5384.jpg" alt="Produtos Dior" class="w-full h-full object-cover" loading="lazy" /></div>
+          <div class="rounded-2xl aspect-square overflow-hidden bg-inkCard"><img src="/fotos/IMG_5407.jpg" alt="Produtos Chanel" class="w-full h-full object-cover" loading="lazy" /></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRABALHOS (Instagram via Behold) -->
+  <section id="trabalhos" class="py-24 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="section-eyebrow">Trabalhos</p>
+        <h2 class="font-serif text-4xl md:text-5xl mt-4 leading-tight">Alguns resultados</h2>
+        <div class="divider"></div>
+        <p class="text-muted text-sm max-w-md mx-auto mt-4">Os trabalhos mais recentes, direto do Instagram.</p>
+      </div>
+      <behold-widget feed-id="29wWTCBvrqyB0iOJsXum"></behold-widget>
+      <script>
+        (() => {
+          const d=document,s=d.createElement("script");s.type="module";
+          s.src="https://w.behold.so/widget.js";d.head.append(s);
+        })();
+      </script>
+      <div class="text-center mt-12">
+        <a id="cta-trabalhos" href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="btn-outline-gold">
+          Acompanhe no Instagram <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENDAR -->
+  <section id="agendar" class="py-24 px-6 bg-inkSoft border-t border-border/40">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="section-eyebrow">Agendar</p>
+      <h2 class="font-serif text-4xl md:text-5xl mt-4 mb-6 leading-tight">Vamos cuidar do seu próximo encontro.</h2>
+      <p class="text-muted leading-relaxed mb-10 max-w-xl mx-auto">Atendimento sob horário marcado. A assessoria do Férnando confere a agenda e organiza o melhor dia e horário para você.</p>
+      <a id="cta-agendar" href="#" class="btn-gold">Agendar pelo WhatsApp <span aria-hidden="true">→</span></a>
+      <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm">
+        <a href="https://instagram.com/fernand0maximo" target="_blank" rel="noopener" class="text-muted hover:text-gold transition">Instagram: @fernand0maximo</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-12 px-6 border-t border-border/40">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="font-serif text-2xl mb-2">Férnando <span class="text-gold">Máximo</span></p>
+      <p class="text-xs uppercase tracking-widest text-muted mb-6">Cabeleireiro & Maquiador · Âme Concept · Jardim Paulistano · SP</p>
+      <div class="text-xs text-muted">© <span id="ano"></span> · Todos os direitos reservados.</div>
+    </div>
+  </footer>
+
+  <a id="fab-whatsapp" href="#" target="_blank" rel="noopener" class="fab-whatsapp md:hidden" aria-label="Agendar pelo WhatsApp">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 2.5 1 3.1.8 3.7.8.6-.1 1.8-.7 2-1.5.2-.7.2-1.4.2-1.5-.1-.2-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.4 1.3 4.9L2 22l5.3-1.4c1.4.8 3.1 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.5 0-2.9-.4-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3c-.8-1.3-1.3-2.9-1.3-4.4 0-4.4 3.6-8 8-8s8 3.6 8 8c-.1 4.4-3.7 8-8 8z"/></svg>
+  </a>
+
+<script>
+(function() {
+  const WHATSAPP_NUM = "5511913239335";
+  const MSG = "Olá! Vim pelo site, gostaria de agendar um atendimento com o Férnando.";
+  const link = `https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(MSG)}`;
+  const ids = ["cta-nav", "cta-nav-mobile", "cta-hero", "cta-agendar", "fab-whatsapp"];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.href = link; el.target = "_blank"; el.rel = "noopener"; }
+  });
+  document.getElementById("ano").textContent = new Date().getFullYear();
+
+  // Serviços: barra lateral + carrossel
+  (function() {
+    const items = document.querySelectorAll('.service-item');
+    const sets = document.querySelectorAll('.carousel-set');
+    const dotsContainer = document.getElementById('carousel-dots');
+    const label = document.getElementById('carousel-label');
+    const prevBtn = document.getElementById('arrow-prev');
+    const nextBtn = document.getElementById('arrow-next');
+    if (!items.length) return;
+
+    const labels = { noivas: 'Noivas', coloracao: 'Coloração', tratamentos: 'Tratamentos', maquiagem: 'Maquiagem', penteado: 'Penteado' };
+    const state = { current: 'noivas', index: { noivas: 0, coloracao: 0, tratamentos: 0, maquiagem: 0, penteado: 0 } };
+
+    function getActiveSet() { return document.querySelector('.carousel-set[data-set="' + state.current + '"]'); }
+    function getSlides() { return getActiveSet() ? getActiveSet().querySelectorAll('.carousel-slide') : []; }
+
+    function renderDots() {
+      const slides = getSlides();
+      dotsContainer.innerHTML = '';
+      const idx = state.index[state.current] || 0;
+      slides.forEach((_, i) => {
+        const d = document.createElement('span');
+        if (i === idx) d.classList.add('active');
+        dotsContainer.appendChild(d);
+      });
+    }
+
+    function showSlide(serviceKey, idx) {
+      const set = document.querySelector('.carousel-set[data-set="' + serviceKey + '"]');
+      if (!set) return;
+      const slides = set.querySelectorAll('.carousel-slide');
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      state.index[serviceKey] = idx;
+      renderDots();
+    }
+
+    function selectService(key) {
+      state.current = key;
+      items.forEach(i => i.classList.toggle('active', i.dataset.service === key));
+      sets.forEach(s => { s.style.display = s.dataset.set === key ? 'block' : 'none'; });
+      label.textContent = labels[key] || key;
+      showSlide(key, state.index[key] || 0);
+    }
+
+    items.forEach(item => {
+      const key = item.dataset.service;
+      item.addEventListener('mouseenter', () => selectService(key));
+      item.addEventListener('click', () => selectService(key));
+    });
+
+    prevBtn.addEventListener('click', () => {
+      const slides = getSlides();
+      if (!slides.length) return;
+      const idx = (state.index[state.current] - 1 + slides.length) % slides.length;
+      showSlide(state.current, idx);
+    });
+    nextBtn.addEventListener('click', () => {
+      const slides = getSlides();
+      if (!slides.length) return;
+      const idx = (state.index[state.current] + 1) % slides.length;
+      showSlide(state.current, idx);
+    });
+
+    renderDots();
+  })();
+})();
+</script>
+
+</body>
+</html>
